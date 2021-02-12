@@ -382,6 +382,10 @@ public final class String
             this.coder = "".coder;
             return;
         }
+
+        //TODO: check if it breaks the code
+        if(!ignoreLogics) this.logic = checkForStringLogic();
+
         if (COMPACT_STRINGS) {
             byte[] val = StringLatin1.toBytes(codePoints, offset, count);
             if (val != null) {
@@ -444,6 +448,10 @@ public final class String
             this.coder = "".coder;
             return;
         }
+
+        //TODO: check if it breaks the code
+        if(!ignoreLogics) this.logic = checkForStringLogic();
+
         if (COMPACT_STRINGS && (byte)hibyte == 0) {
             this.value = Arrays.copyOfRange(ascii, offset, offset + count);
             this.coder = LATIN1;
@@ -534,6 +542,10 @@ public final class String
             throws UnsupportedEncodingException {
         if (charsetName == null)
             throw new NullPointerException("charsetName");
+
+        //TODO: check if it breaks the code
+        if(!ignoreLogics) this.logic = checkForStringLogic();
+        
         charsetName.ignoreLogics = true;
         checkBoundsOffCount(offset, length, bytes.length);
         StringCoding.Result ret =
@@ -542,14 +554,18 @@ public final class String
         this.coder = ret.coder;
 
         if(ignoreLogics) return;
+        
+        ignoreLogics = true;
         try {
             // -- Somehow cannot use it here... Build will fail
             // checkForStringLogic();
             if(logic != null)
                 logic.applyOnInitialization(this);
-        // Need to throw this one since it doesn't require a throw statment for method declaration
+        // Need to throw this one since it doesn't require a throw statement for method declaration
         } catch(StringNotMatchingLogicException e){
             throw new IllegalStateException(e);
+        } finally {
+            ignoreLogics = false;
         }
     }
 
@@ -587,6 +603,10 @@ public final class String
         if (charset == null)
             throw new NullPointerException("charset");
         checkBoundsOffCount(offset, length, bytes.length);
+        
+        //TODO: check if it breaks the code
+        if(!ignoreLogics) this.logic = checkForStringLogic();
+
         StringCoding.Result ret =
             StringCoding.decode(charset, bytes, offset, length);
         this.value = ret.value;
@@ -675,6 +695,10 @@ public final class String
      */
     public String(byte bytes[], int offset, int length) {
         checkBoundsOffCount(offset, length, bytes.length);
+        
+        //TODO: check if it breaks the code
+        if(!ignoreLogics) this.logic = checkForStringLogic();
+
         StringCoding.Result ret = StringCoding.decode(bytes, offset, length);
         this.value = ret.value;
         this.coder = ret.coder;
@@ -3434,14 +3458,21 @@ public final class String
     public String toString() {
         //@throws IllegalStateException if StringNotMatchingLogicException is thrown
         if(!ignoreLogics) {
-            try {
-                // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
-                //checkForStringLogic();
-                if(logic != null)
-                    logic.applyBeforeToString(this);
-            // Need to throw this one since it doesn't require a throw statment for method declaration
-            } catch(StringNotMatchingLogicException e){
-                throw new IllegalStateException(e);
+            if(logic != null) {
+                ignoreLogics = true;
+                try {
+                    // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
+                    //checkForStringLogic();
+                    String logicReturn = logic.applyBeforeToString(this).ignoreLogics(true);
+                    if(logicReturn != null){
+                        return logicReturn;
+                    }
+                // Need to throw this one since it doesn't require a throw statement for method declaration
+                } catch(StringNotMatchingLogicException e){
+                    throw new IllegalStateException(e);
+                } finally {
+                    ignoreLogics = false;
+                }
             }
         }
         
@@ -3516,7 +3547,7 @@ public final class String
      *         variable and may be zero.  The maximum number of arguments is
      *         limited by the maximum dimension of a Java array as defined by
      *         <cite>The Java&trade; Virtual Machine Specification</cite>.
-     *         The behaviour on a
+     *         The behavior on a
      *         {@code null} argument depends on the <a
      *         href="../util/Formatter.html#syntax">conversion</a>.
      *
@@ -3557,7 +3588,7 @@ public final class String
      *         variable and may be zero.  The maximum number of arguments is
      *         limited by the maximum dimension of a Java array as defined by
      *         <cite>The Java&trade; Virtual Machine Specification</cite>.
-     *         The behaviour on a
+     *         The behavior on a
      *         {@code null} argument depends on the
      *         <a href="../util/Formatter.html#syntax">conversion</a>.
      *
@@ -4084,11 +4115,11 @@ public final class String
     /** If set to true, all logics are ignored */
     private boolean ignoreLogics = false;
 
-    /** Stores the optionnal history node of the String */
+    /** Stores the optional history node of the String */
     private SHNode<String> historyNode;
 
     /**
-     * Add a logic to the String. This will also set ignoreLogic to false.
+     * Add a logic to the String. This will also set ignoreLogics to false.
      *
      * @param logic the logic to be added to the String
      * @throws StringNotMatchingLogicException if logic doesn't match
@@ -4108,6 +4139,16 @@ public final class String
      */
     public IStringLogic getLogic() {
         return logic;
+    }
+
+    /**
+     * Should logic be ignored on this string
+     * @param ignore the logic
+     * @return this String
+     */
+    protected String ignoreLogics(boolean ignore) {
+        ignoreLogics = ignore;
+        return this;
     }
 
     /**
@@ -4156,18 +4197,25 @@ public final class String
     /**
      * Fetch logic and then apply the initialization part
      *
+     * @return true if execution of method should continue, false if the execution of this method should stop now
      * @throws IllegalStateException if StringNotMatchingLogicException is thrown
      */
-    private void applyInitializationLogic() {
-        if(ignoreLogics) return;
+    private boolean applyInitializationLogic() {
+        if(ignoreLogics) return true;
 
+        ignoreLogics = true;
         try {
-            if(logic != null)
-                logic.applyOnInitialization(this);
-        // Need to throw this one since it doesn't require a throw statment for method declaration
+            if(logic != null){
+                return logic.applyOnInitialization(this);
+            }
+        // Need to throw this one since it doesn't require a throw statement for method declaration
         } catch(StringNotMatchingLogicException e){
             throw new IllegalStateException(e);
+        } finally {
+            ignoreLogics = false;
         }
+
+        return true;
     }
 
     /**
@@ -4177,6 +4225,8 @@ public final class String
      */
     private IStringLogic checkForStringLogic() {
         if(logic != null) return logic;
+        if(StringLogicController.isEmpty()) return null;
+
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         return StringLogicController.getLogicFromStackTrace(stackTraceElements);
     }

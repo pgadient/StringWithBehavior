@@ -11,23 +11,23 @@ public interface IStringLogic {
      * Custom logic to be applied inside the toString method
      * 
      * @param s the string to verify
-     * @throws StringNotMatchingLogicException if logic doesn't match
-     * @return if necessary
+     * @throws StringNotMatchingLogicException if logic doesn't match and if the execution of this method should stop now
+     * @return true if execution of method should continue, false if the execution of this method should stop now
      */
-    public boolean applyBeforeToString(String s) throws StringNotMatchingLogicException;
+    public String applyBeforeToString(String s) throws StringNotMatchingLogicException;
     
     /**
      * Custom logic to be applied during initialization or the moment
      * the logic is added
      * 
      * @param s the string to verify
-     * @throws StringNotMatchingLogicException if logic doesn't match
-     * @return if necessary
+     * @throws StringNotMatchingLogicException if logic doesn't match and if the execution of this method should stop now
+     * @return true if execution of method should continue, false if the execution of this method should stop now
      */
     public boolean applyOnInitialization(String s) throws StringNotMatchingLogicException;
 
     /**
-     * Weather the string is inherited to its children
+     * Whether the string is inherited to its children
      * 
      * @param stt the string transformation to be checked
      * @return if the child of this transformation should inherit the logic
@@ -35,7 +35,7 @@ public interface IStringLogic {
     public boolean inheritToChild(StringTransformType stt);
 
     /**
-     * Weather the string should keep track of its children
+     * Whether the string should keep track of its children
      * 
      * @return if the String keeps track of its children
      */
@@ -47,7 +47,7 @@ public interface IStringLogic {
     public String getDescription();
 
     /**
-     * Different types of transformations a string can go thrue to create a new one
+     * Different types of transformations a string can go thru to create a new one
      */
     public enum StringTransformType { 
         /** Nothing happened */

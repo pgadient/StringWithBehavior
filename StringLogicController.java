@@ -2,6 +2,7 @@ package java.lang;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.nio.file.Paths;
@@ -14,6 +15,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.MalformedURLException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
 * The {@code StringLogicController} helps assigning StringLogic to all strings initialized inside a specific class.
 *
@@ -21,9 +28,19 @@ import java.net.MalformedURLException;
 */
 public class StringLogicController {
 	/**
+	 * Logics that are package specific (applied to all strings in this package only)
+	 */
+	private static Map<String, IStringLogic> specificPackageLogics = new HashMap<>();
+
+	/**
 	 * Logics that are class specific (applied to all strings in this class only)
 	 */
-	private static Map<String, IStringLogic> specificLogics = new HashMap<>();
+	private static Map<String, IStringLogic> specificClassLogics = new HashMap<>();
+
+	/**
+	 * Logics that are method specific (applied to all strings in this method only)
+	 */
+	private static Map<String, IStringLogic> specificMethodLogics = new HashMap<>();
 	
 	/**
 	 * Check if class already initialized its logics
@@ -31,95 +48,179 @@ public class StringLogicController {
 	private static boolean initialized = false;
 	
 	/**
+	 * Parser class for XML files
+	 */
+	private static class XMLParser {
+		/** List of all logics defined in the xml file */
+		private static List<Logic> logics = new ArrayList<Logic>();
+		/** The current logic that is read */
+		private static Logic currentLogic;
+		/** the current value that is read */
+		private static String elementValue;
+	
+		/** int value of < */
+		private static final int TAG_START = '<';
+		/** int value of > */
+		private static final int TAG_END = '>';
+		/** int value of / */
+		private static final int CLOSE_TAG_IDENTIFIER = '/';
+		
+		/**
+		 * Parses the xml file
+		 * @param configFilePath path to xml file
+		 */
+		public static void parse(Path configFilePath) {
+			try (BufferedReader br = Files.newBufferedReader(configFilePath)) {
+				StringBuilder sb = new StringBuilder();
+				boolean reachedEnd = false;
+				int state = 0;
+				boolean inTagName = false;
+				boolean isCloseTag = false;
+				
+				while(!reachedEnd) {
+					int c = br.read();
+					if(c == -1) break;
+					if(c == '\r' || c == '\n' || c == '\t' || c == '\b') continue;
+					switch(state) {
+					case 0: //wait for first tag start
+						if(c == TAG_START) {
+							state = 1;
+							inTagName = true;
+						}
+						break;
+					case 1: //record tag name
+						switch(c) {
+						case TAG_END:
+							state = 2;
+							if(inTagName) {
+								if(isCloseTag) {
+									endElement(sb.toString());
+									isCloseTag = false;
+								} else {
+									startElement(sb.toString());
+								}
+							} else {
+								elementValue = sb.toString();
+							}
+							sb = new StringBuilder();
+							break;
+						default: 
+							sb.append((char)c);
+							break;
+						}
+						break;
+					case 2: // wait for tag start or values
+						if(c == TAG_START) { 
+							state = 3;
+							break;
+						}
+						sb.append((char)c);
+						break;
+					case 3:
+						if(c == CLOSE_TAG_IDENTIFIER) {
+							elementValue = sb.toString();
+							sb = new StringBuilder();
+							isCloseTag = true;
+						} else {
+							sb = new StringBuilder();
+							sb.append((char)c);
+						}
+						state = 1;
+						break;
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	
+		/**
+		 * 
+		 * @param qName the name of the current tag
+		 */
+		private static void startElement(String qName) {
+			switch(qName) {
+			case "logic":
+				currentLogic = new Logic();
+				logics.add(currentLogic);
+				break;
+			}
+		}
+	
+		/**
+		 * 
+		 * @param qName the name of the current tag
+		 */
+		private static void endElement(String qName) {
+			switch(qName) {
+			case "name":
+				currentLogic.name = elementValue;
+				break;
+			case "package":
+				currentLogic.packages.add(elementValue);
+				break;
+			case "class":
+				currentLogic.classes.add(elementValue);
+				break;
+			case "method":
+				currentLogic.methods.add(elementValue);
+				break;
+			}
+		}
+		
+		/**
+		 * Internal Logic identifier that contains the logic description and the places it should be applied to
+		 */
+		private static class Logic {
+			/** Logic identifier with package and class name */
+			String name;
+			/** Packages it should be applied to */
+			List<String> packages = new ArrayList<String>();
+			/** Classes it should be applied to */
+			List<String> classes = new ArrayList<String>();
+			/** Methods it should be applied to */
+			List<String> methods = new ArrayList<String>();
+		}
+	}
+	
+	/**
 	 * Check for logics in parameters
 	 */
-	// private static void initialize() {
-	// 	System.out.println("In initialized");
-		
-	// 	initialized = true;
-	// 	String logics = System.getProperty("ch.unibe.scg.cz.stringLogics");
-	// 	System.out.println(logics);
-
-	// 	if(logics != null) {
-	// 		String[] logicArray = logics.split(";");
-	//         for(String logic: logicArray) {
-	//         	String[] elements = logic.split(",");
-	//         	if(elements.length > 1) {
-	// 				try {
-	// 					Class<?> clazz = Class.forName(elements[0]);
-	// 					if(clazz != null){
-	// 						IStringLogic l = (IStringLogic)clazz.getDeclaredConstructor().newInstance();
-	// 						for(int i = 1 ; i < elements.length; i++){
-	// 							addClassLogic(elements[i], l);
-	// 							System.out.println(elements[0] + " applied on "+elements[i]);
-	// 						}
-	// 					}
-	// 				} catch(Exception e) {
-	// 					e.printStackTrace();
-	// 				}
-	//         	}
-	//         }
-	// 	}
-	// }
 	private static void initialize() {
-		initialized = true;
-		String path = System.getProperty("ch.unibe.scg.cz.stringLogics");
+		try	{
+			String configDirPath = System.getProperty("java.lang.stringLogics".ignoreLogics(true));
+			if(configDirPath == null || configDirPath.isEmpty()) return;
 
-		if(path == null || path.isEmpty()) return;
+			initialized = true;
 
-		System.out.println("In initialized");
-		List<String> logics = loadFile(path+"/config.csv");
-		System.out.println(logics);
+			File configFile = new File(configDirPath + File.separator + "config.xml".ignoreLogics(true));
+			XMLParser.parse(configFile.toPath());
 
-		for(String logicString: logics) {
-			String[] elements = logicString.split(",");
-			if(elements.length > 1) {
+			for(XMLParser.Logic logic: XMLParser.logics) {
 				try {
-					Class<?> clazz = loadClass(path+"/",elements[0]);
+					Class<?> clazz = loadClass(configDirPath+File.separator,logic.name);
 					if(clazz != null){
-						IStringLogic l = (IStringLogic) clazz.getDeclaredConstructor().newInstance();
-						for(int i = 1 ; i < elements.length; i++){
-							addClassLogic(elements[i], l);
-							System.out.println(elements[0] + " applied on "+elements[i]);
+						for(String packageName: logic.packages) {
+							IStringLogic l = (IStringLogic) clazz.getDeclaredConstructor().newInstance();
+							addPackageLogic(packageName, l);
+							System.out.println(logic.name + " applied on ".ignoreLogics(true)+packageName);
+						}
+						for(String className: logic.classes) {
+							IStringLogic l = (IStringLogic) clazz.getDeclaredConstructor().newInstance();
+							addClassLogic(className, l);
+							System.out.println(logic.name + " applied on ".ignoreLogics(true)+className);
+						}
+						for(String methodName: logic.methods) {
+							IStringLogic l = (IStringLogic) clazz.getDeclaredConstructor().newInstance();
+							addMethodLogic(methodName, l);
+							System.out.println(logic.name + " applied on ".ignoreLogics(true)+methodName);
 						}
 					}
 				} catch(Exception e) {
 					e.printStackTrace();
 				}
 			}
-		}
-	}
-
-	/**
-	 * Load a csv file
-	 * @param filePath file path of csv
-	 * @return the list of logics as String
-	 */
-	private static List<String> loadFile(String filePath) {
-		List<String> logics = new ArrayList<String>();
-        Path pathToFile = Paths.get(filePath);
-
-        // create an instance of BufferedReader
-        // using try with resource, Java 7 feature to close resources
-        try (BufferedReader br = Files.newBufferedReader(pathToFile)) {
-
-            // read the first line from the text file
-            String line = br.readLine();
-
-            // loop until all lines are read
-            while (line != null) {
-                logics.add(line);
-
-                // read next line before looping
-                // if end of file reached, line would be null
-                line = br.readLine();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return logics;
+		}catch(NullPointerException e) { }
 	}
 
 	/**
@@ -147,6 +248,26 @@ public class StringLogicController {
 			return null;
 		}
 	}
+
+	/**
+	 * Checks if there are any logics in the controller
+	 * @return true if there are any values in the maps
+	 */
+	public static boolean isEmpty() {
+		if(!initialized) initialize();
+		return specificPackageLogics.isEmpty() && specificClassLogics.isEmpty() && specificMethodLogics.isEmpty();
+	}
+	
+	/**
+	 * Add a string logic to a package
+	 * 
+	 * @param packageDefinition complete definition of the package
+	 * @param logic the StringLogic to add to the package
+	 */
+	public static void addPackageLogic(String packageDefinition, IStringLogic logic) {
+		packageDefinition.ignoreLogics(true);
+		specificPackageLogics.put(packageDefinition, logic);
+	}
 	
 	/**
 	 * Add a string logic to a class
@@ -155,19 +276,67 @@ public class StringLogicController {
 	 * @param logic the StringLogic to add to the class
 	 */
 	public static void addClassLogic(String classDefinition, IStringLogic logic) {
-		specificLogics.put(classDefinition, logic);
+		classDefinition.ignoreLogics(true);
+		specificClassLogics.put(classDefinition, logic);
+	}
+	
+	/**
+	 * Add a string logic to a method
+	 * 
+	 * @param methodDefinition complete definition of the method (package + class name + methodName)
+	 * @param logic the StringLogic to add to the method
+	 */
+	public static void addMethodLogic(String methodDefinition, IStringLogic logic) {
+		methodDefinition.ignoreLogics(true);
+		specificMethodLogics.put(methodDefinition, logic);
+	}
+	
+	/**
+	 * Get the string logic for a given package
+	 * 
+	 * @param packageDefinition complete definition of the package
+	 * @return the string logic of the package or its parents or null.
+	 */
+	public static IStringLogic getPackageLogic(String packageDefinition) {
+		if(!initialized) initialize();
+		packageDefinition.ignoreLogics(true);
+		if(specificPackageLogics.containsKey(packageDefinition))
+			return specificPackageLogics.get(packageDefinition);
+		if(!packageDefinition.contains(".".ignoreLogics(true))) return null;
+		if(packageDefinition.contains(".".ignoreLogics(true)))
+			return getPackageLogic(packageDefinition.substring(0,packageDefinition.lastIndexOf(".".ignoreLogics(true))));
+		return null;
 	}
 	
 	/**
 	 * Get the string logic for a given class
 	 * 
 	 * @param classDefinition complete definition of the class (package + class name)
-	 * @return the string logic of the class or null.
+	 * @return the string logic of the class or the package or null.
 	 */
 	public static IStringLogic getClassLogic(String classDefinition) {
 		if(!initialized) initialize();
-		if(specificLogics.containsKey(classDefinition))
-			return specificLogics.get(classDefinition);
+		classDefinition.ignoreLogics(true);
+		if(specificClassLogics.containsKey(classDefinition))
+			return specificClassLogics.get(classDefinition);
+		if(classDefinition.contains(".".ignoreLogics(true)))
+			return getPackageLogic(classDefinition.substring(0,classDefinition.lastIndexOf(".".ignoreLogics(true))));
+		return null;
+	}
+	
+	/**
+	 * Get the string logic for a given method
+	 * 
+	 * @param methodDefinition complete definition of the class (package + class name + methodName)
+	 * @return the string logic of the method or the class or the package or null.
+	 */
+	public static IStringLogic getMethodLogic(String methodDefinition) {
+		if(!initialized) initialize();
+		methodDefinition.ignoreLogics(true);
+		if(specificMethodLogics.containsKey(methodDefinition))
+			return specificMethodLogics.get(methodDefinition);
+		if(methodDefinition.contains(".".ignoreLogics(true)))
+			return getClassLogic(methodDefinition.substring(0,methodDefinition.lastIndexOf(".".ignoreLogics(true))));
 		return null;
 	}
 
@@ -180,11 +349,25 @@ public class StringLogicController {
 	public static IStringLogic getLogicFromStackTrace(StackTraceElement[] stackTraceElements) {
 		if(!initialized) initialize();
 		for(int i = 1; i < stackTraceElements.length; i++) {
-			if(!stackTraceElements[i].getClassName().equals("java.lang.String")) {
-				return StringLogicController.getClassLogic(stackTraceElements[i].getClassName());
+			if(!canIgnore(stackTraceElements[i])) {
+				String methodDefinition = (stackTraceElements[i].getClassName().ignoreLogics(true) + ".".ignoreLogics(true) + stackTraceElements[i].getMethodName().ignoreLogics(true)).ignoreLogics(true);
+				return StringLogicController.getMethodLogic(methodDefinition);
+				// return StringLogicController.getClassLogic(stackTraceElements[i].getClassName());
 			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Checks whether that class should be ignored or not
+	 * @param className to check
+	 * @return whether that class should be ignored or not
+	 */
+	private static boolean canIgnore(StackTraceElement element){
+		if("java.base".ignoreLogics(true).equals(element.getModuleName())) return true;
+		// if(className.equals("java.lang.String".ignoreLogics(true))) return true;
+		// if(className.equals("java.lang.StringLogicController".ignoreLogics(true))) return true;
+		return false;
 	}
 }
