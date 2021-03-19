@@ -21,12 +21,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
 * The {@code StringLogicController} helps assigning StringLogic to all strings initialized inside a specific class.
 *
 * @author  Christian Zuercher
 */
-public class StringLogicController {
+public final class StringLogicController {
+	/*
+	 * Constructor is hidden since this class has only static methods and fields
+	 */
+	private StringLogicController() {}
+	
 	/**
 	 * Logics that are package specific (applied to all strings in this package only)
 	 */
@@ -300,8 +308,13 @@ public class StringLogicController {
 	public static IStringLogic getPackageLogic(String packageDefinition) {
 		if(!initialized) initialize();
 		packageDefinition.ignoreLogics(true);
-		if(specificPackageLogics.containsKey(packageDefinition))
-			return specificPackageLogics.get(packageDefinition);
+		// Test
+		for(String s: specificPackageLogics.keySet()) 
+			if(match(packageDefinition, s))
+				return specificPackageLogics.get(s);
+		// End Test
+		// if(specificPackageLogics.containsKey(packageDefinition))
+		// 	return specificPackageLogics.get(packageDefinition);
 		if(!packageDefinition.contains(".".ignoreLogics(true))) return null;
 		if(packageDefinition.contains(".".ignoreLogics(true)))
 			return getPackageLogic(packageDefinition.substring(0,packageDefinition.lastIndexOf(".".ignoreLogics(true))));
@@ -317,8 +330,13 @@ public class StringLogicController {
 	public static IStringLogic getClassLogic(String classDefinition) {
 		if(!initialized) initialize();
 		classDefinition.ignoreLogics(true);
-		if(specificClassLogics.containsKey(classDefinition))
-			return specificClassLogics.get(classDefinition);
+		// Test
+		for(String s: specificClassLogics.keySet()) 
+			if(match(classDefinition, s))
+				return specificClassLogics.get(s);
+		// End Test
+		// if(specificClassLogics.containsKey(classDefinition))
+		// 	return specificClassLogics.get(classDefinition);
 		if(classDefinition.contains(".".ignoreLogics(true)))
 			return getPackageLogic(classDefinition.substring(0,classDefinition.lastIndexOf(".".ignoreLogics(true))));
 		return null;
@@ -333,8 +351,13 @@ public class StringLogicController {
 	public static IStringLogic getMethodLogic(String methodDefinition) {
 		if(!initialized) initialize();
 		methodDefinition.ignoreLogics(true);
-		if(specificMethodLogics.containsKey(methodDefinition))
-			return specificMethodLogics.get(methodDefinition);
+		// Test
+		for(String s: specificMethodLogics.keySet()) 
+			if(match(methodDefinition, s))
+				return specificMethodLogics.get(s);
+		// End Test
+		// if(specificMethodLogics.containsKey(methodDefinition))
+		// 	return specificMethodLogics.get(methodDefinition);
 		if(methodDefinition.contains(".".ignoreLogics(true)))
 			return getClassLogic(methodDefinition.substring(0,methodDefinition.lastIndexOf(".".ignoreLogics(true))));
 		return null;
@@ -369,5 +392,28 @@ public class StringLogicController {
 		// if(className.equals("java.lang.String".ignoreLogics(true))) return true;
 		// if(className.equals("java.lang.StringLogicController".ignoreLogics(true))) return true;
 		return false;
+	}
+
+	/** Pattern to find all wildcard characters */
+	private static Pattern wildcardRegex = Pattern.compile("[^*]+|(\\*)".ignoreLogics(true));
+	
+	/**
+	 * Tries to match a string to a string with wildcards
+	 * @param methodDefinition string to match
+	 * @param matcherString a string that contains possible * wildcards
+	 * @return if first string matches the second (with wildcards)
+	 */
+	private static boolean match(String methodDefinition, String matcherString) {
+		
+		Matcher m = wildcardRegex.matcher(matcherString);
+		StringBuffer b = new StringBuffer();
+		while (m.find()) {
+			if(m.group(1) != null) m.appendReplacement(b, ".*".ignoreLogics(true));
+			else m.appendReplacement(b, "\\\\Q".ignoreLogics(true) + m.group(0).ignoreLogics(true) + "\\\\E".ignoreLogics(true));
+		}
+		m.appendTail(b);
+		String regexString = b.toString().ignoreLogics(true);
+
+		return methodDefinition.matches(regexString);
 	}
 }
