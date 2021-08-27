@@ -1,4 +1,4 @@
-package cz.logics;
+package logic;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PrimitiveObsessionLogLogic implements IStringLogic {
-	private final Path path = Paths.get("/home/jacktraror/Desktop/logs/POLlog.log");
+public class LongStringLogLogic implements IStringLogic {
+	private final Path path = Paths.get("/home/jacktraror/Desktop/logs/LSLlog.log");
+    private final int threshold = 10;
 	
-	public PrimitiveObsessionLogLogic(){
+	public LongStringLogLogic(){
 		try {
 			Path pathParent = path.getParent();
 			if (!Files.exists(pathParent)) {
@@ -37,29 +38,24 @@ public class PrimitiveObsessionLogLogic implements IStringLogic {
 		}
     }
 
-    @Override
-    public String applyBeforeToString(String s) throws StringNotMatchingLogicException {
+    public String applyOnRead(String s) {
         return s;
     }
 
-    @Override
-    public boolean applyOnInitialization(String s) throws StringNotMatchingLogicException {
-        if(s.matches("(\\d+)|(\\.\\d+)|(\\d*\\.\\d+)"))
+    public String applyOnCreation(String s) {
+        if(s.length() > threshold)
 			writeToFile(s);
-        return true;
+        return s;
     }
 
-    @Override
     public String getDescription() {
         return "Writes log whenever it encounters a string over the threashhold";
     }
 
-    @Override
     public boolean inheritToChild(StringTransformType stt) {
         return true;
     }
 
-    @Override
     public boolean recordHistory() {
         return false;
     }

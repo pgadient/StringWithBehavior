@@ -1,4 +1,4 @@
-package cz.logics;
+package logic;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,35 +37,30 @@ public class SQLdetectionLogLogic implements IStringLogic  {
 		}
     }
 
-    @Override
-    public String applyBeforeToString(String s) throws StringNotMatchingLogicException {
+    public String applyOnRead(String s) {
         return s;
     }
 
-    @Override
-    public boolean applyOnInitialization(String s) throws StringNotMatchingLogicException {
+    public String applyOnCreation(String s) {
         if(s.matches("(?i)\\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})\\b.*"))
             writeToFile("Possible SQL statement detected",s);
         if(s.matches(".*'(''|[^'])*'.*") || s.matches(".*\"(\"\"|[^\"])*\".*"))
             writeToFile("Possible text block injection detected",s);
-        if(s.matches("\s*'*\s*(?i)\\bOR\\b.*=.*"))
+        if(s.matches("\\s*'*\\s*(?i)\\bOR\\b.*=.*"))
             writeToFile("Possible injection with 'or =' detected",s);
-        if(s.matches(".*(\s*;\s*)+(?i)\\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})\\b.*"))
+        if(s.matches(".*(\\s*;\\s*)+(?i)\\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})\\b.*"))
             writeToFile("Possible SQL injection detected",s);
-        return true;
+        return s;
     }
 
-    @Override
     public String getDescription() {
         return "Writes log whenever it encounters something related to SQL injection";
     }
 
-    @Override
     public boolean inheritToChild(StringTransformType stt) {
         return true;
     }
 
-    @Override
     public boolean recordHistory() {
         return false;
     }

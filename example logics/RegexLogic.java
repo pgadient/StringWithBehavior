@@ -1,32 +1,30 @@
-package cz.logics;
+package logic;
 
 public class RegexLogic implements IStringLogic {
     private final String regex;    
 
-    public TestLogic(String regex) {
+    public RegexLogic(String regex) {
         this.regex = regex;
     }
 
-    @Override public boolean applyOnInitialization(String s) throws StringNotMatchingLogicException {
+    public String applyOnCreation(String s) {
         if(!s.matches(regex))
             throw new StringNotMatchingLogicException();
-        return true;
+        return s;
     }
 
-    @Override public String applyBeforeToString(String s) throws StringNotMatchingLogicException {
-        return null;
+    public String applyOnRead(String s) {
+        return s;
     }
 
-    @Override public String getDescription() {
+    public String getDescription() {
         return regex;
     }
 
-    @Override
     public boolean inheritToChild(StringTransformType stt) {
         return true;
     }
 
-    @Override
     public boolean recordHistory() {
         return true;
     }

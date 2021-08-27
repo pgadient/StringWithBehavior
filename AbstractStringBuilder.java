@@ -619,6 +619,10 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         }
         asb.getBytes(value, count, coder);
         count += len;
+
+        // Retain logics from original builder
+        this.logics.addAll(asb.logics);
+        
         return this;
     }
 

@@ -12,19 +12,17 @@ public interface IStringLogic {
      * the logic is added
      * 
      * @param s the string to verify
-     * @throws StringNotMatchingLogicException if logic doesn't match and if the execution of this method should stop now
      * @return true if execution of method should continue, false if the execution of this method should stop now
      */
-    default public String applyOnCreation(String s) throws StringNotMatchingLogicException { return s; };
+    default public String applyOnCreation(byte[] value, byte coder) { return new String(value, coder); };
 
     /**
      * Custom logic to be applied inside the toString method
      * 
      * @param s the string to verify
-     * @throws StringNotMatchingLogicException if logic doesn't match and if the execution of this method should stop now
      * @return true if execution of method should continue, false if the execution of this method should stop now
      */
-    default public String applyOnRead(String s) throws StringNotMatchingLogicException { return s; };
+    default public String applyOnRead(String s) { return s; };
 
     /**
      * Whether the string is inherited to its children

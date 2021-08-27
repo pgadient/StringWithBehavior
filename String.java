@@ -241,10 +241,15 @@ public final class String
      * unnecessary since Strings are immutable.
      */
     public String() {
-        this.value = "".value;
-        this.coder = "".coder;
-
-        applyInitializationLogic();
+        String str = applyInitializationLogic("".value, "".coder);
+        if(val == null) {
+            this.value = "".value;
+            this.coder = "".coder;
+        } else {
+            this.value = str.value;
+            this.coder = str.coder;
+            this.hash = str.hash;
+        }
     }
 
     /**
@@ -259,8 +264,6 @@ public final class String
      */
     @IntrinsicCandidate
     public String(String original) {
-        this.logic = checkForStringLogic();
-
         if(original.logic != null) 
             if(original.logic.inheritToChild(IStringLogic.StringTransformType.COPY))
                 this.logic = original.logic;
@@ -268,12 +271,17 @@ public final class String
         if(original.historyNode != null) {
             this.historyNode = new SHNode<String>(this, original.historyNode);
         }
-
-        this.value = original.value;
-        this.coder = original.coder;
-        this.hash = original.hash;
         
-        applyInitializationLogic();
+        String str = applyInitializationLogic(original.value, original.coder);
+        if(str == null) {
+            this.value = original.value;
+            this.coder = original.coder;
+            this.hash = original.hash;
+        } else {
+            this.value = str.value;
+            this.coder = str.coder;
+            this.hash = str.hash;
+        }
     }
 
     /**
@@ -301,12 +309,17 @@ public final class String
         if(original.historyNode != null) {
             this.historyNode = new SHNode<String>(this, original.historyNode);
         }
-
-        this.value = original.value;
-        this.coder = original.coder;
-        this.hash = original.hash;
         
-        applyInitializationLogic();
+        String str = applyInitializationLogic(original.value, original.coder);
+        if(str == null) {
+            this.value = original.value;
+            this.coder = original.coder;
+            this.hash = original.hash;
+        } else {
+            this.value = str.value;
+            this.coder = str.coder;
+            this.hash = str.hash;
+        }
     }
 
     /**
@@ -383,24 +396,44 @@ public final class String
     public String(int[] codePoints, int offset, int count) {
         checkBoundsOffCount(offset, count, codePoints.length);
         if (count == 0) {
-            this.value = "".value;
-            this.coder = "".coder;
+            String str = applyInitializationLogic("".value, "".coder);
+            if(str == null) {
+                this.value = "".value;
+                this.coder = "".coder;
+            } else {
+                this.value = str.value;
+                this.coder = str.coder;
+                this.hash = str.hash;
+            }
             return;
         }
-		
-		if(!ignoreLogics) this.logic = checkForStringLogic();
 		
         if (COMPACT_STRINGS) {
             byte[] val = StringLatin1.toBytes(codePoints, offset, count);
             if (val != null) {
-                this.coder = LATIN1;
-                this.value = val;
+                String str = applyInitializationLogic(val, LATIN1);
+                if(str == null) {
+                    this.value = val;
+                    this.coder = LATIN1;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
                 return;
             }
         }
-        this.coder = UTF16;
-        this.value = StringUTF16.toBytes(codePoints, offset, count);
-		applyInitializationLogic();
+
+        byte[] byteValue = StringUTF16.toBytes(codePoints, offset, count);
+        String str = applyInitializationLogic(byteValue, UTF16);
+        if(str == null) {
+            this.value = byteValue;
+            this.coder = UTF16;
+        } else {
+            this.value = str.value;
+            this.coder = str.coder;
+            this.hash = str.hash;
+        }
     }
 
     /**
@@ -447,25 +480,45 @@ public final class String
     public String(byte ascii[], int hibyte, int offset, int count) {
         checkBoundsOffCount(offset, count, ascii.length);
         if (count == 0) {
-            this.value = "".value;
-            this.coder = "".coder;
+            String str = applyInitializationLogic("".value, "".coder);
+            if(str == null) {
+                this.value = "".value;
+                this.coder = "".coder;
+            } else {
+                this.value = str.value;
+                this.coder = str.coder;
+                this.hash = str.hash;
+            }
             return;
         }
-        if(!ignoreLogics) this.logic = checkForStringLogic();
         if (COMPACT_STRINGS && (byte)hibyte == 0) {
-            this.value = Arrays.copyOfRange(ascii, offset, offset + count);
-            this.coder = LATIN1;
+            byte[] byteValue = Arrays.copyOfRange(ascii, offset, offset + count);
+
+            String str = applyInitializationLogic(byteValue, LATIN1);
+            if(str == null) {
+                this.value = byteValue;
+                this.coder = LATIN1;
+            } else {
+                this.value = str.value;
+                this.coder = str.coder;
+                this.hash = str.hash;
+            }
         } else {
             hibyte <<= 8;
-            byte[] val = StringUTF16.newBytesFor(count);
+            byte[] byteValue = StringUTF16.newBytesFor(count);
             for (int i = 0; i < count; i++) {
-                StringUTF16.putChar(val, i, hibyte | (ascii[offset++] & 0xff));
+                StringUTF16.putChar(byteValue, i, hibyte | (ascii[offset++] & 0xff));
             }
-            this.value = val;
-            this.coder = UTF16;
+            String str = applyInitializationLogic(byteValue, UTF16);
+            if(str == null) {
+                this.value = byteValue;
+                this.coder = UTF16;
+            } else {
+                this.value = str.value;
+                this.coder = str.coder;
+                this.hash = str.hash;
+            }
         }
-        
-        applyInitializationLogic();
     }
 
     /**
@@ -576,12 +629,28 @@ public final class String
         checkBoundsOffCount(offset, length, bytes.length);
         if(!ignoreLogics) this.logic = checkForStringLogic();
         if (length == 0) {
-            this.value = "".value;
-            this.coder = "".coder;
+            String str = applyInitializationLogic("".value, "".coder);
+            if(str == null) {
+                this.value = "".value;
+                this.coder = "".coder;
+            } else {
+                this.value = str.value;
+                this.coder = str.coder;
+                this.hash = str.hash;
+            }
         } else if (charset == UTF_8.INSTANCE) {
             if (COMPACT_STRINGS && !StringCoding.hasNegatives(bytes, offset, length)) {
-                this.value = Arrays.copyOfRange(bytes, offset, offset + length);
-                this.coder = LATIN1;
+                byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
+		
+                String str = applyInitializationLogic(byteValue, LATIN1);
+                if(str == null) {
+                    this.value = byteValue;
+                    this.coder = LATIN1;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
             } else {
                 int sl = offset + length;
                 int dp = 0;
@@ -612,9 +681,16 @@ public final class String
                         if (dp != dst.length) {
                             dst = Arrays.copyOf(dst, dp);
                         }
-                        this.value = dst;
-                        this.coder = LATIN1;
-                        applyInitializationLogic();
+		
+                        String str = applyInitializationLogic(dst, LATIN1);
+                        if(str == null) {
+                            this.value = dst;
+                            this.coder = LATIN1;
+                        } else {
+                            this.value = str.value;
+                            this.coder = str.coder;
+                            this.hash = str.hash;
+                        }
                         return;
                     }
                 }
@@ -629,21 +705,56 @@ public final class String
                 if (dp != length) {
                     dst = Arrays.copyOf(dst, dp << 1);
                 }
-                this.value = dst;
-                this.coder = UTF16;
+
+                String str = applyInitializationLogic(dst, UTF16);
+                if(str == null) {
+                    this.value = dst;
+                    this.coder = UTF16;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
             }
         } else if (charset == ISO_8859_1.INSTANCE) {
             if (COMPACT_STRINGS) {
-                this.value = Arrays.copyOfRange(bytes, offset, offset + length);
-                this.coder = LATIN1;
+                byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
+                
+                String str = applyInitializationLogic(byteValue, LATIN1);
+                if(str == null) {
+                    this.value = byteValue;
+                    this.coder = LATIN1;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
             } else {
-                this.value = StringLatin1.inflate(bytes, offset, length);
-                this.coder = UTF16;
+                byte[] byteValue = StringLatin1.inflate(bytes, offset, length);
+                
+                String str = applyInitializationLogic(byteValue, UTF16);
+                if(str == null) {
+                    this.value = byteValue;
+                    this.coder = UTF16;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
             }
         } else if (charset == US_ASCII.INSTANCE) {
             if (COMPACT_STRINGS && !StringCoding.hasNegatives(bytes, offset, length)) {
-                this.value = Arrays.copyOfRange(bytes, offset, offset + length);
-                this.coder = LATIN1;
+                byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
+                
+                String str = applyInitializationLogic(byteValue, LATIN1);
+                if(str == null) {
+                    this.value = byteValue;
+                    this.coder = LATIN1;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
             } else {
                 byte[] dst = new byte[length << 1];
                 int dp = 0;
@@ -651,8 +762,16 @@ public final class String
                     int b = bytes[offset++];
                     StringUTF16.putChar(dst, dp++, (b >= 0) ? (char) b : REPL);
                 }
-                this.value = dst;
-                this.coder = UTF16;
+                
+                String str = applyInitializationLogic(dst, UTF16);
+                if(str == null) {
+                    this.value = dst;
+                    this.coder = UTF16;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
             }
         } else {
             // (1)We never cache the "external" cs, the only benefit of creating
@@ -669,13 +788,30 @@ public final class String
                 // ascii
                 if (ad.isASCIICompatible() && !StringCoding.hasNegatives(bytes, offset, length)) {
                     if (COMPACT_STRINGS) {
-                        this.value = Arrays.copyOfRange(bytes, offset, offset + length);
-                        this.coder = LATIN1;
+                        byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
+                        
+                        String str = applyInitializationLogic(byteValue, LATIN1);
+                        if(str == null) {
+                            this.value = byteValue;
+                            this.coder = LATIN1;
+                        } else {
+                            this.value = str.value;
+                            this.coder = str.coder;
+                            this.hash = str.hash;
+                        }
                         return;
                     }
-                    this.value = StringLatin1.inflate(bytes, offset, length);
-                    this.coder = UTF16;
-                    applyInitializationLogic();
+                    byte[] byteValue = StringLatin1.inflate(bytes, offset, length);
+                    
+                    String str = applyInitializationLogic(byteValue, UTF16);
+                    if(str == null) {
+                        this.value = byteValue;
+                        this.coder = UTF16;
+                    } else {
+                        this.value = str.value;
+                        this.coder = str.coder;
+                        this.hash = str.hash;
+                    }
                     return;
                 }
 
@@ -683,9 +819,16 @@ public final class String
                 if (COMPACT_STRINGS && ad.isLatin1Decodable()) {
                     byte[] dst = new byte[length];
                     ad.decodeToLatin1(bytes, offset, length, dst);
-                    this.value = dst;
-                    this.coder = LATIN1;
-                    applyInitializationLogic();
+                    
+                    String str = applyInitializationLogic(dst, LATIN1);
+                    if(str == null) {
+                        this.value = dst;
+                        this.coder = LATIN1;
+                    } else {
+                        this.value = str.value;
+                        this.coder = str.coder;
+                        this.hash = str.hash;
+                    }
                     return;
                 }
 
@@ -697,15 +840,29 @@ public final class String
                 if (COMPACT_STRINGS) {
                     byte[] bs = StringUTF16.compress(ca, 0, clen);
                     if (bs != null) {
-                        value = bs;
-                        coder = LATIN1;
-                        applyInitializationLogic();
+                        String str = applyInitializationLogic(bs, LATIN1);
+                        if(str == null) {
+                            this.value = bs;
+                            this.coder = LATIN1;
+                        } else {
+                            this.value = str.value;
+                            this.coder = str.coder;
+                            this.hash = str.hash;
+                        }
                         return;
                     }
                 }
-                coder = UTF16;
-                value = StringUTF16.toBytes(ca, 0, clen);
-                applyInitializationLogic();
+                byte[] byteValue = StringUTF16.toBytes(ca, 0, clen);
+                
+                String str = applyInitializationLogic(byteValue, UTF16);
+                if(str == null) {
+                    this.value = byteValue;
+                    this.coder = UTF16;
+                } else {
+                    this.value = str.value;
+                    this.coder = str.coder;
+                    this.hash = str.hash;
+                }
                 return;
             }
 
@@ -723,17 +880,31 @@ public final class String
             int caLen = decodeWithDecoder(cd, ca, bytes, offset, length);
             if (COMPACT_STRINGS) {
                 byte[] bs = StringUTF16.compress(ca, 0, caLen);
-                if (bs != null) {
-                    value = bs;
-                    coder = LATIN1;
-                    applyInitializationLogic();
+                if (bs != null) {                    
+                    String str = applyInitializationLogic(bs, LATIN1, 0);
+                    if(str == null) {
+                        this.value = bs;
+                        this.coder = LATIN1;
+                    } else {
+                        this.value = str.value;
+                        this.coder = str.coder;
+                        this.hash = str.hash;
+                    }
                     return;
                 }
             }
-            coder = UTF16;
-            value = StringUTF16.toBytes(ca, 0, caLen);
+            byte[] byteValue = StringUTF16.toBytes(ca, 0, caLen);
+            
+            String str = applyInitializationLogic(byteValue, UTF16);
+            if(str == null) {
+                this.value = byteValue;
+                this.coder = UTF16;
+            } else {
+                this.value = str.value;
+                this.coder = str.coder;
+                this.hash = str.hash;
+            }
         }
-        applyInitializationLogic();
     }
 
     /*
@@ -4866,9 +5037,8 @@ public final class String
      * Add a logic to the String. This will also set ignoreLogics to false.
      *
      * @param logic the logic to be added to the String
-     * @throws StringNotMatchingLogicException if logic doesn't match
      */
-    public void setLogic(IStringLogic logic) throws StringNotMatchingLogicException {
+    public void setLogic(IStringLogic logic) {
         if(logic == null) return;
         ignoreLogics = false;
         logic.applyOnCreation(this);
@@ -4942,30 +5112,21 @@ public final class String
      * Fetch logic and then apply the initialization part
      *
      * @return true if execution of method should continue, false if the execution of this method should stop now
-     * @throws IllegalStateException if StringNotMatchingLogicException is thrown
      */
-    private boolean applyInitializationLogic() {
+    private String applyInitializationLogic(byte[] value, byte coder) {
         if(ignoreLogics) return true;
 
         ignoreLogics = true;
         try {
+            this.logic = checkForStringLogic();
             if(logic != null) {
-                String newVal = logic.applyOnCreation(this);
-                // Things are final so use method in constructor to set them
-                // if(!newVal.equals(this)){
-                //     this.value = newVal.value;
-                //     this.coder = newVal.coder;
-                //     this.hash = newVal.hash;
-                // }
+                return logic.applyOnCreation(value, coder, hash);
             }
-        // Need to throw this one since it doesn't require a throw statement for method declaration
-        } catch(StringNotMatchingLogicException e){
-            throw new IllegalStateException(e);
         } finally {
             ignoreLogics = false;
         }
 
-        return true;
+        return null;
     }
 
     /**
@@ -4986,7 +5147,6 @@ public final class String
      * @return the String returned from the logic otherwise this
      */
     private String getStringAfterToStringLogic() {
-        //@throws IllegalStateException if StringNotMatchingLogicException is thrown
         if(!ignoreLogics) {
             if(logic != null) {
                 ignoreLogics = true;
@@ -4998,8 +5158,6 @@ public final class String
                         return logicReturn.ignoreLogics(true);
                     }
                 // Need to throw this one since it doesn't require a throw statement for method declaration
-                } catch(StringNotMatchingLogicException e){
-                    throw new IllegalStateException(e);
                 } finally {
                     ignoreLogics = false;
                 }
@@ -5013,7 +5171,6 @@ public final class String
      * @return the String as byte[] returned from the logic otherwise value
      */
     private byte[] getBytesAfterToStringLogic() {
-        //@throws IllegalStateException if StringNotMatchingLogicException is thrown
         if(!ignoreLogics) {
             if(logic != null) {
                 ignoreLogics = true;
@@ -5025,8 +5182,6 @@ public final class String
                         return logicReturn.value;
                     }
                 // Need to throw this one since it doesn't require a throw statement for method declaration
-                } catch(StringNotMatchingLogicException e){
-                    throw new IllegalStateException(e);
                 } finally {
                     ignoreLogics = false;
                 }

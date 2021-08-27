@@ -1,0 +1,11 @@
+<?xml version="1.0">
+<logics>
+    <logic>
+        <name></name>
+        <applyTo>
+            <package></package>
+            <class></class>
+            <method></method>
+        </applyTo>
+    </logic>
+</logics>

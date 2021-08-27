@@ -14,7 +14,7 @@ package java.lang;
  *
  * @author  Christian Zuercher
  */
-public class StringNotMatchingLogicException extends Exception {
+public class StringNotMatchingLogicException extends RuntimeException {
 
     @java.io.Serial
 	static final long serialVersionUID = -5335947480814418509L;
