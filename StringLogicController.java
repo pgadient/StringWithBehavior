@@ -395,7 +395,7 @@ public final class StringLogicController {
 	}
 
 	/** Pattern to find all wildcard characters */
-	private static Pattern wildcardRegex = Pattern.compile("[^*]+|(\\*)".ignoreLogics(true));
+	private static Pattern wildcardRegex = null;
 	
 	/**
 	 * Tries to match a string to a string with wildcards
@@ -404,7 +404,8 @@ public final class StringLogicController {
 	 * @return if first string matches the second (with wildcards)
 	 */
 	private static boolean match(String methodDefinition, String matcherString) {
-		
+		if(wildcardRegex == null) wildcardRegex = Pattern.compile("[^*]+|(\\*)".ignoreLogics(true));
+
 		Matcher m = wildcardRegex.matcher(matcherString);
 		StringBuffer b = new StringBuffer();
 		while (m.find()) {

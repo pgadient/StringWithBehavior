@@ -242,7 +242,7 @@ public final class String
      */
     public String() {
         String str = applyInitializationLogic("".value, "".coder);
-        if(val == null) {
+        if(str == null) {
             this.value = "".value;
             this.coder = "".coder;
         } else {
@@ -881,7 +881,7 @@ public final class String
             if (COMPACT_STRINGS) {
                 byte[] bs = StringUTF16.compress(ca, 0, caLen);
                 if (bs != null) {                    
-                    String str = applyInitializationLogic(bs, LATIN1, 0);
+                    String str = applyInitializationLogic(bs, LATIN1);
                     if(str == null) {
                         this.value = bs;
                         this.coder = LATIN1;
@@ -5041,7 +5041,7 @@ public final class String
     public void setLogic(IStringLogic logic) {
         if(logic == null) return;
         ignoreLogics = false;
-        logic.applyOnCreation(this);
+        logic.applyOnCreation(this.value, this.coder);
         this.logic = logic;
         if(logic.recordHistory() && historyNode == null)
             historyNode = new SHNode<String>(this);
@@ -5114,13 +5114,15 @@ public final class String
      * @return true if execution of method should continue, false if the execution of this method should stop now
      */
     private String applyInitializationLogic(byte[] value, byte coder) {
-        if(ignoreLogics) return true;
+        if(ignoreLogics) return null;
 
         ignoreLogics = true;
         try {
-            this.logic = checkForStringLogic();
+            if(logic == null) {
+                this.logic = checkForStringLogic();
+            }
             if(logic != null) {
-                return logic.applyOnCreation(value, coder, hash);
+                return logic.applyOnCreation(value, coder);
             }
         } finally {
             ignoreLogics = false;
@@ -5152,7 +5154,7 @@ public final class String
                 ignoreLogics = true;
                 try {
                     // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
-                    //checkForStringLogic();
+                    checkForStringLogic();
                     String logicReturn = logic.applyOnRead(this);
                     if(logicReturn != null){
                         return logicReturn.ignoreLogics(true);

@@ -11,8 +11,9 @@ public interface IStringLogic {
      * Custom logic to be applied during initialization or the moment
      * the logic is added
      * 
-     * @param s the string to verify
-     * @return true if execution of method should continue, false if the execution of this method should stop now
+     * @param value bytes of the string to verify
+     * @param coder encoding of the string to verify
+     * @return string that should be used in further execution
      */
     default public String applyOnCreation(byte[] value, byte coder) { return new String(value, coder); };
 
@@ -20,7 +21,7 @@ public interface IStringLogic {
      * Custom logic to be applied inside the toString method
      * 
      * @param s the string to verify
-     * @return true if execution of method should continue, false if the execution of this method should stop now
+     * @return string that should be used in further execution. Can also return "s" as it is
      */
     default public String applyOnRead(String s) { return s; };
 
