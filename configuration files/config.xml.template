@@ -1,11 +1,11 @@
 <?xml version="1.0">
-<logics>
-    <logic>
+<behaviors>
+    <behavior>
         <name></name>
         <applyTo>
             <package></package>
             <class></class>
             <method></method>
         </applyTo>
-    </logic>
-</logics>
+    </behavior>
+</behaviors>

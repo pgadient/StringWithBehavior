@@ -580,8 +580,8 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         if (str == null) {
             return appendNull();
         }
-        if(str.hasLogic())
-            logics.add(str.getLogic());
+        if(str.hasBehavior())
+            behaviors.add(str.getBehavior());
         if(str.getHistoryNode()!=null){
             historyRequested = true;
             parents.add(str.getHistoryNode());
@@ -620,8 +620,8 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         asb.getBytes(value, count, coder);
         count += len;
 
-        // Retain logics from original builder
-        this.logics.addAll(asb.logics);
+        // Retain behaviors from original builder
+        this.behaviors.addAll(asb.behaviors);
         
         return this;
     }
@@ -1832,8 +1832,8 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
 	// ==============================================================================
     // ==============================================================================
     
-    /** List of logics */
-    protected List<IStringLogic> logics = new ArrayList<IStringLogic>();
+    /** List of behaviors */
+    protected List<IStringBehavior> behaviors = new ArrayList<IStringBehavior>();
 
     /** If history is requested by at least one parent */
     protected boolean historyRequested = false;
@@ -1842,13 +1842,13 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
     protected List<SHNode<String>> parents = new ArrayList<SHNode<String>>();
 
     /**
-     * Get Logic from all children
-     * @return created Logic
+     * Get Behavior from all children
+     * @return created Behavior
      */
-    protected IStringLogic getLogicFromList() {
-        for(IStringLogic logic : logics)
-            if(logic.inheritToChild(IStringLogic.StringTransformType.ADD))
-                return logic;
+    protected IStringBehavior getBehaviorFromList() {
+        for(IStringBehavior behavior : behaviors)
+            if(behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                return behavior;
         return null;
     }
 }

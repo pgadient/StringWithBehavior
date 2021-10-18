@@ -711,8 +711,8 @@ import jdk.internal.vm.annotation.IntrinsicCandidate;
                                : StringUTF16.newString(value, 0, count);
         }
         String ret = new String(toStringCache);
-		if(!logics.isEmpty())
-            ret.setLogic(getLogicFromList());
+		if(!behaviors.isEmpty())
+            ret.setBehavior(getBehaviorFromList());
         if(historyRequested)
             ret.setHistoryNode(new SHNode<String>(ret,parents));
         return ret;

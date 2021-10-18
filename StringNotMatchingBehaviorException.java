@@ -2,11 +2,11 @@
 package java.lang;
 
 /**
- * {@code StringNotMatchingLogicException} is the superclass of those
+ * {@code StringNotMatchingBehaviorException} is the superclass of those
  * exceptions that can be thrown during the normal operation of the
  * Java Virtual Machine.
  *
- * <p>{@code StringNotMatchingLogicException} and its subclasses are <em>unchecked
+ * <p>{@code StringNotMatchingBehaviorException} and its subclasses are <em>unchecked
  * exceptions</em>.  Unchecked exceptions do <em>not</em> need to be
  * declared in a method or constructor's {@code throws} clause if they
  * can be thrown by the execution of the method or constructor and
@@ -14,7 +14,7 @@ package java.lang;
  *
  * @author  Christian Zuercher
  */
-public class StringNotMatchingLogicException extends RuntimeException {
+public class StringNotMatchingBehaviorException extends RuntimeException {
 
     @java.io.Serial
 	static final long serialVersionUID = -5335947480814418509L;
@@ -23,7 +23,7 @@ public class StringNotMatchingLogicException extends RuntimeException {
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public StringNotMatchingLogicException() {
+    public StringNotMatchingBehaviorException() {
         super();
     }
 
@@ -34,7 +34,7 @@ public class StringNotMatchingLogicException extends RuntimeException {
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
      */
-    public StringNotMatchingLogicException(String message) {
+    public StringNotMatchingBehaviorException(String message) {
         super(message);
     }
 
@@ -52,7 +52,7 @@ public class StringNotMatchingLogicException extends RuntimeException {
      *         unknown.)
      * @since  1.4
      */
-    public StringNotMatchingLogicException(String message, Throwable cause) {
+    public StringNotMatchingBehaviorException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -68,7 +68,7 @@ public class StringNotMatchingLogicException extends RuntimeException {
      *         unknown.)
      * @since  1.4
      */
-    public StringNotMatchingLogicException(Throwable cause) {
+    public StringNotMatchingBehaviorException(Throwable cause) {
         super(cause);
     }
 
@@ -87,7 +87,7 @@ public class StringNotMatchingLogicException extends RuntimeException {
      *
      * @since 1.7
      */
-    protected StringNotMatchingLogicException(String message, Throwable cause,
+    protected StringNotMatchingBehaviorException(String message, Throwable cause,
                                boolean enableSuppression,
                                boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

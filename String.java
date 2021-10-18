@@ -241,7 +241,7 @@ public final class String
      * unnecessary since Strings are immutable.
      */
     public String() {
-        String str = applyInitializationLogic("".value, "".coder);
+        String str = applyInitializationBehavior("".value, "".coder);
         if(str == null) {
             this.value = "".value;
             this.coder = "".coder;
@@ -264,15 +264,15 @@ public final class String
      */
     @IntrinsicCandidate
     public String(String original) {
-        if(original.logic != null) 
-            if(original.logic.inheritToChild(IStringLogic.StringTransformType.COPY))
-                this.logic = original.logic;
+        if(original.behavior != null) 
+            if(original.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                this.behavior = original.behavior;
         
         if(original.historyNode != null) {
             this.historyNode = new SHNode<String>(this, original.historyNode);
         }
         
-        String str = applyInitializationLogic(original.value, original.coder);
+        String str = applyInitializationBehavior(original.value, original.coder);
         if(str == null) {
             this.value = original.value;
             this.coder = original.coder;
@@ -290,27 +290,27 @@ public final class String
      * newly created string is a copy of the argument string. Unless an
      * explicit copy of {@code original} is needed, use of this constructor is
      * unnecessary since Strings are immutable. Also, if the original String
-     * inherits his logic, the current logic will not be added.
+     * inherits his behavior, the current behavior will not be added.
      *
      * @param  original
      *         A {@code String}
-     * @param  logic
-     *         A {@code IStringLogic}
+     * @param  behavior
+     *         A {@code IStringBehavior}
      */
-    public String(String original, IStringLogic logic) {
-        if(original.logic != null)
-            if(original.logic.inheritToChild(IStringLogic.StringTransformType.COPY))
-                this.logic = original.logic;
-        if(this.logic == null)
-            this.logic = logic;
+    public String(String original, IStringBehavior behavior) {
+        if(original.behavior != null)
+            if(original.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                this.behavior = original.behavior;
+        if(this.behavior == null)
+            this.behavior = behavior;
         else
-            System.out.println("String already has a logic");
+            System.out.println("String already has a behavior");
 
         if(original.historyNode != null) {
             this.historyNode = new SHNode<String>(this, original.historyNode);
         }
         
-        String str = applyInitializationLogic(original.value, original.coder);
+        String str = applyInitializationBehavior(original.value, original.coder);
         if(str == null) {
             this.value = original.value;
             this.coder = original.coder;
@@ -396,7 +396,7 @@ public final class String
     public String(int[] codePoints, int offset, int count) {
         checkBoundsOffCount(offset, count, codePoints.length);
         if (count == 0) {
-            String str = applyInitializationLogic("".value, "".coder);
+            String str = applyInitializationBehavior("".value, "".coder);
             if(str == null) {
                 this.value = "".value;
                 this.coder = "".coder;
@@ -411,7 +411,7 @@ public final class String
         if (COMPACT_STRINGS) {
             byte[] val = StringLatin1.toBytes(codePoints, offset, count);
             if (val != null) {
-                String str = applyInitializationLogic(val, LATIN1);
+                String str = applyInitializationBehavior(val, LATIN1);
                 if(str == null) {
                     this.value = val;
                     this.coder = LATIN1;
@@ -425,7 +425,7 @@ public final class String
         }
 
         byte[] byteValue = StringUTF16.toBytes(codePoints, offset, count);
-        String str = applyInitializationLogic(byteValue, UTF16);
+        String str = applyInitializationBehavior(byteValue, UTF16);
         if(str == null) {
             this.value = byteValue;
             this.coder = UTF16;
@@ -480,7 +480,7 @@ public final class String
     public String(byte ascii[], int hibyte, int offset, int count) {
         checkBoundsOffCount(offset, count, ascii.length);
         if (count == 0) {
-            String str = applyInitializationLogic("".value, "".coder);
+            String str = applyInitializationBehavior("".value, "".coder);
             if(str == null) {
                 this.value = "".value;
                 this.coder = "".coder;
@@ -494,7 +494,7 @@ public final class String
         if (COMPACT_STRINGS && (byte)hibyte == 0) {
             byte[] byteValue = Arrays.copyOfRange(ascii, offset, offset + count);
 
-            String str = applyInitializationLogic(byteValue, LATIN1);
+            String str = applyInitializationBehavior(byteValue, LATIN1);
             if(str == null) {
                 this.value = byteValue;
                 this.coder = LATIN1;
@@ -509,7 +509,7 @@ public final class String
             for (int i = 0; i < count; i++) {
                 StringUTF16.putChar(byteValue, i, hibyte | (ascii[offset++] & 0xff));
             }
-            String str = applyInitializationLogic(byteValue, UTF16);
+            String str = applyInitializationBehavior(byteValue, UTF16);
             if(str == null) {
                 this.value = byteValue;
                 this.coder = UTF16;
@@ -627,9 +627,9 @@ public final class String
     public String(byte[] bytes, int offset, int length, Charset charset) {
         Objects.requireNonNull(charset);
         checkBoundsOffCount(offset, length, bytes.length);
-        if(!ignoreLogics) this.logic = checkForStringLogic();
+        if(!ignoreBehaviors) this.behavior = checkForStringBehavior();
         if (length == 0) {
-            String str = applyInitializationLogic("".value, "".coder);
+            String str = applyInitializationBehavior("".value, "".coder);
             if(str == null) {
                 this.value = "".value;
                 this.coder = "".coder;
@@ -642,7 +642,7 @@ public final class String
             if (COMPACT_STRINGS && !StringCoding.hasNegatives(bytes, offset, length)) {
                 byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
 		
-                String str = applyInitializationLogic(byteValue, LATIN1);
+                String str = applyInitializationBehavior(byteValue, LATIN1);
                 if(str == null) {
                     this.value = byteValue;
                     this.coder = LATIN1;
@@ -682,7 +682,7 @@ public final class String
                             dst = Arrays.copyOf(dst, dp);
                         }
 		
-                        String str = applyInitializationLogic(dst, LATIN1);
+                        String str = applyInitializationBehavior(dst, LATIN1);
                         if(str == null) {
                             this.value = dst;
                             this.coder = LATIN1;
@@ -706,7 +706,7 @@ public final class String
                     dst = Arrays.copyOf(dst, dp << 1);
                 }
 
-                String str = applyInitializationLogic(dst, UTF16);
+                String str = applyInitializationBehavior(dst, UTF16);
                 if(str == null) {
                     this.value = dst;
                     this.coder = UTF16;
@@ -720,7 +720,7 @@ public final class String
             if (COMPACT_STRINGS) {
                 byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
                 
-                String str = applyInitializationLogic(byteValue, LATIN1);
+                String str = applyInitializationBehavior(byteValue, LATIN1);
                 if(str == null) {
                     this.value = byteValue;
                     this.coder = LATIN1;
@@ -732,7 +732,7 @@ public final class String
             } else {
                 byte[] byteValue = StringLatin1.inflate(bytes, offset, length);
                 
-                String str = applyInitializationLogic(byteValue, UTF16);
+                String str = applyInitializationBehavior(byteValue, UTF16);
                 if(str == null) {
                     this.value = byteValue;
                     this.coder = UTF16;
@@ -746,7 +746,7 @@ public final class String
             if (COMPACT_STRINGS && !StringCoding.hasNegatives(bytes, offset, length)) {
                 byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
                 
-                String str = applyInitializationLogic(byteValue, LATIN1);
+                String str = applyInitializationBehavior(byteValue, LATIN1);
                 if(str == null) {
                     this.value = byteValue;
                     this.coder = LATIN1;
@@ -763,7 +763,7 @@ public final class String
                     StringUTF16.putChar(dst, dp++, (b >= 0) ? (char) b : REPL);
                 }
                 
-                String str = applyInitializationLogic(dst, UTF16);
+                String str = applyInitializationBehavior(dst, UTF16);
                 if(str == null) {
                     this.value = dst;
                     this.coder = UTF16;
@@ -790,7 +790,7 @@ public final class String
                     if (COMPACT_STRINGS) {
                         byte[] byteValue = Arrays.copyOfRange(bytes, offset, offset + length);
                         
-                        String str = applyInitializationLogic(byteValue, LATIN1);
+                        String str = applyInitializationBehavior(byteValue, LATIN1);
                         if(str == null) {
                             this.value = byteValue;
                             this.coder = LATIN1;
@@ -803,7 +803,7 @@ public final class String
                     }
                     byte[] byteValue = StringLatin1.inflate(bytes, offset, length);
                     
-                    String str = applyInitializationLogic(byteValue, UTF16);
+                    String str = applyInitializationBehavior(byteValue, UTF16);
                     if(str == null) {
                         this.value = byteValue;
                         this.coder = UTF16;
@@ -820,7 +820,7 @@ public final class String
                     byte[] dst = new byte[length];
                     ad.decodeToLatin1(bytes, offset, length, dst);
                     
-                    String str = applyInitializationLogic(dst, LATIN1);
+                    String str = applyInitializationBehavior(dst, LATIN1);
                     if(str == null) {
                         this.value = dst;
                         this.coder = LATIN1;
@@ -840,7 +840,7 @@ public final class String
                 if (COMPACT_STRINGS) {
                     byte[] bs = StringUTF16.compress(ca, 0, clen);
                     if (bs != null) {
-                        String str = applyInitializationLogic(bs, LATIN1);
+                        String str = applyInitializationBehavior(bs, LATIN1);
                         if(str == null) {
                             this.value = bs;
                             this.coder = LATIN1;
@@ -854,7 +854,7 @@ public final class String
                 }
                 byte[] byteValue = StringUTF16.toBytes(ca, 0, clen);
                 
-                String str = applyInitializationLogic(byteValue, UTF16);
+                String str = applyInitializationBehavior(byteValue, UTF16);
                 if(str == null) {
                     this.value = byteValue;
                     this.coder = UTF16;
@@ -881,7 +881,7 @@ public final class String
             if (COMPACT_STRINGS) {
                 byte[] bs = StringUTF16.compress(ca, 0, caLen);
                 if (bs != null) {                    
-                    String str = applyInitializationLogic(bs, LATIN1);
+                    String str = applyInitializationBehavior(bs, LATIN1);
                     if(str == null) {
                         this.value = bs;
                         this.coder = LATIN1;
@@ -895,7 +895,7 @@ public final class String
             }
             byte[] byteValue = StringUTF16.toBytes(ca, 0, caLen);
             
-            String str = applyInitializationLogic(byteValue, UTF16);
+            String str = applyInitializationBehavior(byteValue, UTF16);
             if(str == null) {
                 this.value = byteValue;
                 this.coder = UTF16;
@@ -1703,7 +1703,7 @@ public final class String
      *          object.
      */
     public int length() {
-        return getBytesAfterToStringLogic().length >> coder();
+        return getBytesAfterToStringBehavior().length >> coder();
     }
 
     /**
@@ -1716,7 +1716,7 @@ public final class String
      */
     @Override
     public boolean isEmpty() {
-        return getBytesAfterToStringLogic().length == 0;
+        return getBytesAfterToStringBehavior().length == 0;
     }
 
     /**
@@ -1738,11 +1738,11 @@ public final class String
      *             string.
      */
     public char charAt(int index) {
-        byte[] valueAfterToStringLogic = getBytesAfterToStringLogic();
+        byte[] valueAfterToStringBehavior = getBytesAfterToStringBehavior();
         if (isLatin1()) {
-            return StringLatin1.charAt(valueAfterToStringLogic, index);
+            return StringLatin1.charAt(valueAfterToStringBehavior, index);
         } else {
-            return StringUTF16.charAt(valueAfterToStringLogic, index);
+            return StringUTF16.charAt(valueAfterToStringBehavior, index);
         }
     }
 
@@ -1769,14 +1769,14 @@ public final class String
      * @since      1.5
      */
     public int codePointAt(int index) {
-        byte[] valueAfterToStringLogic = getBytesAfterToStringLogic();
+        byte[] valueAfterToStringBehavior = getBytesAfterToStringBehavior();
         if (isLatin1()) {
-            checkIndex(index, valueAfterToStringLogic.length);
-            return valueAfterToStringLogic[index] & 0xff;
+            checkIndex(index, valueAfterToStringBehavior.length);
+            return valueAfterToStringBehavior[index] & 0xff;
         }
-        int length = valueAfterToStringLogic.length >> 1;
+        int length = valueAfterToStringBehavior.length >> 1;
         checkIndex(index, length);
-        return StringUTF16.codePointAt(valueAfterToStringLogic, index, length);
+        return StringUTF16.codePointAt(valueAfterToStringBehavior, index, length);
     }
 
     /**
@@ -1807,9 +1807,9 @@ public final class String
             throw new StringIndexOutOfBoundsException(index);
         }
         if (isLatin1()) {
-            return (getBytesAfterToStringLogic()[i] & 0xff);
+            return (getBytesAfterToStringBehavior()[i] & 0xff);
         }
-        return StringUTF16.codePointBefore(getBytesAfterToStringLogic(), index);
+        return StringUTF16.codePointBefore(getBytesAfterToStringBehavior(), index);
     }
 
     /**
@@ -1841,7 +1841,7 @@ public final class String
         if (isLatin1()) {
             return endIndex - beginIndex;
         }
-        return StringUTF16.codePointCount(getBytesAfterToStringLogic(), beginIndex, endIndex);
+        return StringUTF16.codePointCount(getBytesAfterToStringBehavior(), beginIndex, endIndex);
     }
 
     /**
@@ -1868,7 +1868,7 @@ public final class String
         if (index < 0 || index > length()) {
             throw new IndexOutOfBoundsException();
         }
-        return Character.offsetByCodePoints(getStringAfterToStringLogic(), index, codePointOffset);
+        return Character.offsetByCodePoints(getStringAfterToStringBehavior(), index, codePointOffset);
     }
 
     /**
@@ -1905,9 +1905,9 @@ public final class String
         checkBoundsBeginEnd(srcBegin, srcEnd, length());
         checkBoundsOffCount(dstBegin, srcEnd - srcBegin, dst.length);
         if (isLatin1()) {
-            StringLatin1.getChars(getBytesAfterToStringLogic(), srcBegin, srcEnd, dst, dstBegin);
+            StringLatin1.getChars(getBytesAfterToStringBehavior(), srcBegin, srcEnd, dst, dstBegin);
         } else {
-            StringUTF16.getChars(getBytesAfterToStringLogic(), srcBegin, srcEnd, dst, dstBegin);
+            StringUTF16.getChars(getBytesAfterToStringBehavior(), srcBegin, srcEnd, dst, dstBegin);
         }
     }
 
@@ -1960,9 +1960,9 @@ public final class String
         Objects.requireNonNull(dst);
         checkBoundsOffCount(dstBegin, srcEnd - srcBegin, dst.length);
         if (isLatin1()) {
-            StringLatin1.getBytes(getBytesAfterToStringLogic(), srcBegin, srcEnd, dst, dstBegin);
+            StringLatin1.getBytes(getBytesAfterToStringBehavior(), srcBegin, srcEnd, dst, dstBegin);
         } else {
-            StringUTF16.getBytes(getBytesAfterToStringLogic(), srcBegin, srcEnd, dst, dstBegin);
+            StringUTF16.getBytes(getBytesAfterToStringBehavior(), srcBegin, srcEnd, dst, dstBegin);
         }
     }
 
@@ -1989,7 +1989,7 @@ public final class String
     public byte[] getBytes(String charsetName)
             throws UnsupportedEncodingException {
         if (charsetName == null) throw new NullPointerException();
-        return encode(lookupCharset(charsetName), coder(), getBytesAfterToStringLogic());
+        return encode(lookupCharset(charsetName), coder(), getBytesAfterToStringBehavior());
     }
 
     /**
@@ -2012,7 +2012,7 @@ public final class String
      */
     public byte[] getBytes(Charset charset) {
         if (charset == null) throw new NullPointerException();
-        return encode(charset, coder(), getBytesAfterToStringLogic());
+        return encode(charset, coder(), getBytesAfterToStringBehavior());
      }
 
     /**
@@ -2029,7 +2029,7 @@ public final class String
      * @since      1.1
      */
     public byte[] getBytes() {
-        return encode(Charset.defaultCharset(), coder(), getBytesAfterToStringLogic());
+        return encode(Charset.defaultCharset(), coder(), getBytesAfterToStringBehavior());
     }
 
     /**
@@ -2051,13 +2051,13 @@ public final class String
      * @see  #equalsIgnoreCase(String)
      */
     public boolean equals(Object anObject) {
-        if (getStringAfterToStringLogic() == anObject) {
+        if (getStringAfterToStringBehavior() == anObject) {
             return true;
         }
         if (anObject instanceof String) {
             String aString = (String)anObject;
             if (!COMPACT_STRINGS || this.coder == aString.coder) {
-                return StringLatin1.equals(getBytesAfterToStringLogic(), aString.getBytesAfterToStringLogic());
+                return StringLatin1.equals(getBytesAfterToStringBehavior(), aString.getBytesAfterToStringBehavior());
             }
         }
         return false;
@@ -2090,7 +2090,7 @@ public final class String
         if (len != sb.length()) {
             return false;
         }
-        byte v1[] = getBytesAfterToStringLogic();
+        byte v1[] = getBytesAfterToStringBehavior();
         byte v2[] = sb.getValue();
         byte coder = coder();
         if (coder == sb.getCoder()) {
@@ -2148,7 +2148,7 @@ public final class String
         if (n != length()) {
             return false;
         }
-        byte[] val = this.getBytesAfterToStringLogic();
+        byte[] val = this.getBytesAfterToStringBehavior();
         if (isLatin1()) {
             for (int i = 0; i < n; i++) {
                 if ((val[i] & 0xff) != cs.charAt(i)) {
@@ -2193,7 +2193,7 @@ public final class String
      * @see  #codePoints()
      */
     public boolean equalsIgnoreCase(String anotherString) {
-        return (getStringAfterToStringLogic() == anotherString) ? true
+        return (getStringAfterToStringBehavior() == anotherString) ? true
                 : (anotherString != null)
                 && (anotherString.length() == length())
                 && regionMatches(true, 0, anotherString, 0, length());
@@ -2244,8 +2244,8 @@ public final class String
      *          lexicographically greater than the string argument.
      */
     public int compareTo(String anotherString) {
-        byte v1[] = getBytesAfterToStringLogic();
-        byte v2[] = anotherString.getBytesAfterToStringLogic();
+        byte v1[] = getBytesAfterToStringBehavior();
+        byte v2[] = anotherString.getBytesAfterToStringBehavior();
         byte coder = coder();
         if (coder == anotherString.coder()) {
             return coder == LATIN1 ? StringLatin1.compareTo(v1, v2)
@@ -2280,8 +2280,8 @@ public final class String
         private static final long serialVersionUID = 8575799808933029326L;
 
         public int compare(String s1, String s2) {
-            byte v1[] = s1.getBytesAfterToStringLogic();
-            byte v2[] = s2.getBytesAfterToStringLogic();
+            byte v1[] = s1.getBytesAfterToStringBehavior();
+            byte v2[] = s2.getBytesAfterToStringBehavior();
             byte coder = s1.coder();
             if (coder == s2.coder()) {
                 return coder == LATIN1 ? StringLatin1.compareToCI(v1, v2)
@@ -2317,7 +2317,7 @@ public final class String
      * @since   1.2
      */
     public int compareToIgnoreCase(String str) {
-        return CASE_INSENSITIVE_ORDER.compare(getStringAfterToStringLogic(), str);
+        return CASE_INSENSITIVE_ORDER.compare(getStringAfterToStringBehavior(), str);
     }
 
     /**
@@ -2356,8 +2356,8 @@ public final class String
      *          {@code false} otherwise.
      */
     public boolean regionMatches(int toffset, String other, int ooffset, int len) {
-        byte tv[] = getBytesAfterToStringLogic();
-        byte ov[] = other.getBytesAfterToStringLogic();
+        byte tv[] = getBytesAfterToStringBehavior();
+        byte ov[] = other.getBytesAfterToStringBehavior();
         // Note: toffset, ooffset, or len might be near -1>>>1.
         if ((ooffset < 0) || (toffset < 0) ||
              (toffset > (long)length() - len) ||
@@ -2455,8 +2455,8 @@ public final class String
                 || (ooffset > (long)other.length() - len)) {
             return false;
         }
-        byte tv[] = getBytesAfterToStringLogic();
-        byte ov[] = other.getBytesAfterToStringLogic();
+        byte tv[] = getBytesAfterToStringBehavior();
+        byte ov[] = other.getBytesAfterToStringBehavior();
         byte coder = coder();
         if (coder == other.coder()) {
             return coder == LATIN1
@@ -2490,8 +2490,8 @@ public final class String
         if (toffset < 0 || toffset > length() - prefix.length()) {
             return false;
         }
-        byte ta[] = getBytesAfterToStringLogic();
-        byte pa[] = prefix.getBytesAfterToStringLogic();
+        byte ta[] = getBytesAfterToStringBehavior();
+        byte pa[] = prefix.getBytesAfterToStringBehavior();
         int po = 0;
         int pc = pa.length;
         byte coder = coder();
@@ -2572,8 +2572,8 @@ public final class String
         // from immutable state
         int h = hash;
         if (h == 0 && !hashIsZero) {
-            h = isLatin1() ? StringLatin1.hashCode(getBytesAfterToStringLogic())
-                           : StringUTF16.hashCode(getBytesAfterToStringLogic());
+            h = isLatin1() ? StringLatin1.hashCode(getBytesAfterToStringBehavior())
+                           : StringUTF16.hashCode(getBytesAfterToStringBehavior());
             if (h == 0) {
                 hashIsZero = true;
             } else {
@@ -2651,8 +2651,8 @@ public final class String
      *          if the character does not occur.
      */
     public int indexOf(int ch, int fromIndex) {
-        return isLatin1() ? StringLatin1.indexOf(getBytesAfterToStringLogic(), ch, fromIndex)
-                          : StringUTF16.indexOf(getBytesAfterToStringLogic(), ch, fromIndex);
+        return isLatin1() ? StringLatin1.indexOf(getBytesAfterToStringBehavior(), ch, fromIndex)
+                          : StringUTF16.indexOf(getBytesAfterToStringBehavior(), ch, fromIndex);
     }
 
     /**
@@ -2717,8 +2717,8 @@ public final class String
      *          if the character does not occur before that point.
      */
     public int lastIndexOf(int ch, int fromIndex) {
-        return isLatin1() ? StringLatin1.lastIndexOf(getBytesAfterToStringLogic(), ch, fromIndex)
-                          : StringUTF16.lastIndexOf(getBytesAfterToStringLogic(), ch, fromIndex);
+        return isLatin1() ? StringLatin1.lastIndexOf(getBytesAfterToStringBehavior(), ch, fromIndex)
+                          : StringUTF16.lastIndexOf(getBytesAfterToStringBehavior(), ch, fromIndex);
     }
 
     /**
@@ -2738,13 +2738,13 @@ public final class String
     public int indexOf(String str) {
         byte coder = coder();
         if (coder == str.coder()) {
-            return isLatin1() ? StringLatin1.indexOf(getBytesAfterToStringLogic(), str.getBytesAfterToStringLogic())
-                              : StringUTF16.indexOf(getBytesAfterToStringLogic(), str.getBytesAfterToStringLogic());
+            return isLatin1() ? StringLatin1.indexOf(getBytesAfterToStringBehavior(), str.getBytesAfterToStringBehavior())
+                              : StringUTF16.indexOf(getBytesAfterToStringBehavior(), str.getBytesAfterToStringBehavior());
         }
         if (coder == LATIN1) {  // str.coder == UTF16
             return -1;
         }
-        return StringUTF16.indexOfLatin1(getBytesAfterToStringLogic(), str.getBytesAfterToStringLogic());
+        return StringUTF16.indexOfLatin1(getBytesAfterToStringBehavior(), str.getBytesAfterToStringBehavior());
     }
 
     /**
@@ -2765,7 +2765,7 @@ public final class String
      *          or {@code -1} if there is no such occurrence.
      */
     public int indexOf(String str, int fromIndex) {
-        return indexOf(getBytesAfterToStringLogic(), coder(), length(), str, fromIndex);
+        return indexOf(getBytesAfterToStringBehavior(), coder(), length(), str, fromIndex);
     }
 
     /**
@@ -2781,7 +2781,7 @@ public final class String
      */
     static int indexOf(byte[] src, byte srcCoder, int srcCount,
                        String tgtStr, int fromIndex) {
-        byte[] tgt    = tgtStr.getBytesAfterToStringLogic();
+        byte[] tgt    = tgtStr.getBytesAfterToStringBehavior();
         byte tgtCoder = tgtStr.coder();
         int tgtCount  = tgtStr.length();
 
@@ -2846,7 +2846,7 @@ public final class String
      *          or {@code -1} if there is no such occurrence.
      */
     public int lastIndexOf(String str, int fromIndex) {
-        return lastIndexOf(getBytesAfterToStringLogic(), coder(), length(), str, fromIndex);
+        return lastIndexOf(getBytesAfterToStringBehavior(), coder(), length(), str, fromIndex);
     }
 
     /**
@@ -2862,7 +2862,7 @@ public final class String
      */
     static int lastIndexOf(byte[] src, byte srcCoder, int srcCount,
                            String tgtStr, int fromIndex) {
-        byte[] tgt = tgtStr.getBytesAfterToStringLogic();
+        byte[] tgt = tgtStr.getBytesAfterToStringBehavior();
         byte tgtCoder = tgtStr.coder();
         int tgtCount = tgtStr.length();
         /*
@@ -2939,15 +2939,15 @@ public final class String
         int length = length();
         checkBoundsBeginEnd(beginIndex, endIndex, length);
         if (beginIndex == 0 && endIndex == length) {
-            return getStringAfterToStringLogic();
+            return getStringAfterToStringBehavior();
         }
         int subLen = endIndex - beginIndex;
-		String temp = isLatin1() ? StringLatin1.newString(getBytesAfterToStringLogic(), beginIndex, subLen)
-                          : StringUTF16.newString(getBytesAfterToStringLogic(), beginIndex, subLen);
+		String temp = isLatin1() ? StringLatin1.newString(getBytesAfterToStringBehavior(), beginIndex, subLen)
+                          : StringUTF16.newString(getBytesAfterToStringBehavior(), beginIndex, subLen);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.DELETE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null) {
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -3010,14 +3010,14 @@ public final class String
      */
     public String concat(String str) {
         if (str.isEmpty()) {
-            return getStringAfterToStringLogic();
+            return getStringAfterToStringBehavior();
         }
         
-        String temp = StringConcatHelper.simpleConcat(getStringAfterToStringLogic(), str);
+        String temp = StringConcatHelper.simpleConcat(getStringAfterToStringBehavior(), str);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.ADD))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null || str.historyNode != null) {
             // Create History nodes for parents if not existent
@@ -3060,13 +3060,13 @@ public final class String
      */
     public String replace(char oldChar, char newChar) {
         if (oldChar != newChar) {
-            String ret = isLatin1() ? StringLatin1.replace(getBytesAfterToStringLogic(), oldChar, newChar)
-                                    : StringUTF16.replace(getBytesAfterToStringLogic(), oldChar, newChar);
+            String ret = isLatin1() ? StringLatin1.replace(getBytesAfterToStringBehavior(), oldChar, newChar)
+                                    : StringUTF16.replace(getBytesAfterToStringBehavior(), oldChar, newChar);
 
             if (ret != null) {
-                if(this.logic != null)
-                    if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                        ret.logic = this.logic;
+                if(this.behavior != null)
+                    if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                        ret.behavior = this.behavior;
 
                 if(this.historyNode != null)
                     ret.historyNode = new SHNode<String>(ret, this.historyNode);
@@ -3074,7 +3074,7 @@ public final class String
                 return ret;
             }
         }
-        return getStringAfterToStringLogic();
+        return getStringAfterToStringBehavior();
     }
 
     /**
@@ -3104,7 +3104,7 @@ public final class String
      * @since 1.4
      */
     public boolean matches(String regex) {
-        return Pattern.matches(regex, getStringAfterToStringLogic());
+        return Pattern.matches(regex, getStringAfterToStringBehavior());
     }
 
     /**
@@ -3160,11 +3160,11 @@ public final class String
      * @since 1.4
      */
     public String replaceFirst(String regex, String replacement) {
-        String temp =  Pattern.compile(regex).matcher(getStringAfterToStringLogic()).replaceFirst(replacement);
+        String temp =  Pattern.compile(regex).matcher(getStringAfterToStringBehavior()).replaceFirst(replacement);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -3213,11 +3213,11 @@ public final class String
      * @since 1.4
      */
     public String replaceAll(String regex, String replacement) {
-        String temp = Pattern.compile(regex).matcher(getStringAfterToStringLogic()).replaceAll(replacement);
+        String temp = Pattern.compile(regex).matcher(getStringAfterToStringBehavior()).replaceAll(replacement);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -3253,24 +3253,24 @@ public final class String
             boolean trgtIsLatin1 = trgtStr.isLatin1();
             boolean replIsLatin1 = replStr.isLatin1();
             String ret = (thisIsLatin1 && trgtIsLatin1 && replIsLatin1)
-                    ? StringLatin1.replace(getBytesAfterToStringLogic(), thisLen,
-                                           trgtStr.getBytesAfterToStringLogic(), trgtLen,
-                                           replStr.getBytesAfterToStringLogic(), replLen)
-                    : StringUTF16.replace(getBytesAfterToStringLogic(), thisLen, thisIsLatin1,
-                                          trgtStr.getBytesAfterToStringLogic(), trgtLen, trgtIsLatin1,
-                                          replStr.getBytesAfterToStringLogic(), replLen, replIsLatin1);
+                    ? StringLatin1.replace(getBytesAfterToStringBehavior(), thisLen,
+                                           trgtStr.getBytesAfterToStringBehavior(), trgtLen,
+                                           replStr.getBytesAfterToStringBehavior(), replLen)
+                    : StringUTF16.replace(getBytesAfterToStringBehavior(), thisLen, thisIsLatin1,
+                                          trgtStr.getBytesAfterToStringBehavior(), trgtLen, trgtIsLatin1,
+                                          replStr.getBytesAfterToStringBehavior(), replLen, replIsLatin1);
 
             if (ret != null) {
-                if(this.logic != null)
-                    if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                        ret.logic = this.logic;
+                if(this.behavior != null)
+                    if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                        ret.behavior = this.behavior;
 
                 if(this.historyNode != null)
                     ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
                 return ret;
             }
-            return getStringAfterToStringLogic();
+            return getStringAfterToStringBehavior();
 
         } else { // trgtLen == 0
             int resultLen;
@@ -3288,9 +3288,9 @@ public final class String
             }
             String temp = sb.toString();
 
-            if(this.logic != null)
-                if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                    temp.logic = this.logic;
+            if(this.behavior != null)
+                if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                    temp.behavior = this.behavior;
 
             if(this.historyNode != null)
                 temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -3436,7 +3436,7 @@ public final class String
             }
             // If no match was found, return this
             if (off == 0)
-                return new String[]{getStringAfterToStringLogic()};
+                return new String[]{getStringAfterToStringBehavior()};
 
             // Add remaining segment
             if (!limited || list.size() < limit)
@@ -3453,12 +3453,12 @@ public final class String
             temps = list.subList(0, resultSize).toArray(result);
         }
         if(temps == null)
-            temps = Pattern.compile(regex).split(getStringAfterToStringLogic(), limit);
+            temps = Pattern.compile(regex).split(getStringAfterToStringBehavior(), limit);
 		
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.SPLIT))
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.SPLIT))
                 for(int i = 0; i < temps.length; i++)
-                    temps[i].logic = this.logic;
+                    temps[i].behavior = this.behavior;
 
         if(this.historyNode != null)
             for(int i = 0; i < temps.length; i++)
@@ -3649,12 +3649,12 @@ public final class String
      * @since   1.1
      */
     public String toLowerCase(Locale locale) {
-        String temp = isLatin1() ? StringLatin1.toLowerCase(getStringAfterToStringLogic(), getBytesAfterToStringLogic(), locale)
-                          : StringUTF16.toLowerCase(getStringAfterToStringLogic(), getBytesAfterToStringLogic(), locale);
+        String temp = isLatin1() ? StringLatin1.toLowerCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale)
+                          : StringUTF16.toLowerCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -3739,12 +3739,12 @@ public final class String
      * @since   1.1
      */
     public String toUpperCase(Locale locale) {
-        String temp = isLatin1() ? StringLatin1.toUpperCase(getStringAfterToStringLogic(), getBytesAfterToStringLogic(), locale)
-                          : StringUTF16.toUpperCase(getStringAfterToStringLogic(), getBytesAfterToStringLogic(), locale);
+        String temp = isLatin1() ? StringLatin1.toUpperCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale)
+                          : StringUTF16.toUpperCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -3808,13 +3808,13 @@ public final class String
      *          has no leading or trailing space.
      */
     public String trim() {
-        String ret = isLatin1() ? StringLatin1.trim(getBytesAfterToStringLogic())
-                                : StringUTF16.trim(getBytesAfterToStringLogic());
-        if(ret == null) return getStringAfterToStringLogic();
+        String ret = isLatin1() ? StringLatin1.trim(getBytesAfterToStringBehavior())
+                                : StringUTF16.trim(getBytesAfterToStringBehavior());
+        if(ret == null) return getStringAfterToStringBehavior();
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.DELETE))
-                ret.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+                ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
@@ -3849,13 +3849,13 @@ public final class String
      * @since 11
      */
     public String strip() {
-        String ret = isLatin1() ? StringLatin1.strip(getBytesAfterToStringLogic())
-                                : StringUTF16.strip(getBytesAfterToStringLogic());
-        if(ret == null) return getStringAfterToStringLogic();
+        String ret = isLatin1() ? StringLatin1.strip(getBytesAfterToStringBehavior())
+                                : StringUTF16.strip(getBytesAfterToStringBehavior());
+        if(ret == null) return getStringAfterToStringBehavior();
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.DELETE))
-                ret.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+                ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
@@ -3888,13 +3888,13 @@ public final class String
      * @since 11
      */
     public String stripLeading() {
-        String ret = isLatin1() ? StringLatin1.stripLeading(getBytesAfterToStringLogic())
-                                : StringUTF16.stripLeading(getBytesAfterToStringLogic());
-        if(ret == null) return getStringAfterToStringLogic();
+        String ret = isLatin1() ? StringLatin1.stripLeading(getBytesAfterToStringBehavior())
+                                : StringUTF16.stripLeading(getBytesAfterToStringBehavior());
+        if(ret == null) return getStringAfterToStringBehavior();
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.DELETE))
-                ret.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+                ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
@@ -3927,13 +3927,13 @@ public final class String
      * @since 11
      */
     public String stripTrailing() {
-        String ret = isLatin1() ? StringLatin1.stripTrailing(getBytesAfterToStringLogic())
-                                : StringUTF16.stripTrailing(getBytesAfterToStringLogic());
-        if(ret == null) return getStringAfterToStringLogic();
+        String ret = isLatin1() ? StringLatin1.stripTrailing(getBytesAfterToStringBehavior())
+                                : StringUTF16.stripTrailing(getBytesAfterToStringBehavior());
+        if(ret == null) return getStringAfterToStringBehavior();
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.DELETE))
-                ret.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+                ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
@@ -3989,11 +3989,11 @@ public final class String
      * @since 11
      */
     public Stream<String> lines() {
-        Stream<String> temps = isLatin1() ? StringLatin1.lines(getBytesAfterToStringLogic()) : StringUTF16.lines(getBytesAfterToStringLogic());
+        Stream<String> temps = isLatin1() ? StringLatin1.lines(getBytesAfterToStringBehavior()) : StringUTF16.lines(getBytesAfterToStringBehavior());
         
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.SPLIT))
-                temps.forEach(s -> { s.logic = this.logic; });
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.SPLIT))
+                temps.forEach(s -> { s.behavior = this.behavior; });
 
         if(this.historyNode != null)
             temps.forEach(s -> { s.historyNode = new SHNode<String>(s, this.historyNode); });
@@ -4054,13 +4054,13 @@ public final class String
     }
 
     private int indexOfNonWhitespace() {
-        return isLatin1() ? StringLatin1.indexOfNonWhitespace(getBytesAfterToStringLogic())
-                          : StringUTF16.indexOfNonWhitespace(getBytesAfterToStringLogic());
+        return isLatin1() ? StringLatin1.indexOfNonWhitespace(getBytesAfterToStringBehavior())
+                          : StringUTF16.indexOfNonWhitespace(getBytesAfterToStringBehavior());
     }
 
     private int lastIndexOfNonWhitespace() {
-        return isLatin1() ? StringLatin1.lastIndexOfNonWhitespace(getBytesAfterToStringLogic())
-                          : StringUTF16.lastIndexOfNonWhitespace(getBytesAfterToStringLogic());
+        return isLatin1() ? StringLatin1.lastIndexOfNonWhitespace(getBytesAfterToStringBehavior())
+                          : StringUTF16.lastIndexOfNonWhitespace(getBytesAfterToStringBehavior());
     }
 
     /**
@@ -4345,9 +4345,9 @@ public final class String
 
         String temp = new String(chars, 0, to);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -4374,7 +4374,7 @@ public final class String
      * @since 12
      */
     public <R> R transform(Function<? super String, ? extends R> f) {
-        return f.apply(getStringAfterToStringLogic());
+        return f.apply(getStringAfterToStringBehavior());
     }
 
     /**
@@ -4383,7 +4383,7 @@ public final class String
      * @return  the string itself.
      */
     public String toString() {
-        return getStringAfterToStringLogic();
+        return getStringAfterToStringBehavior();
     }
 
     /**
@@ -4398,8 +4398,8 @@ public final class String
     @Override
     public IntStream chars() {
         return StreamSupport.intStream(
-            isLatin1() ? new StringLatin1.CharsSpliterator(getBytesAfterToStringLogic(), Spliterator.IMMUTABLE)
-                       : new StringUTF16.CharsSpliterator(getBytesAfterToStringLogic(), Spliterator.IMMUTABLE),
+            isLatin1() ? new StringLatin1.CharsSpliterator(getBytesAfterToStringBehavior(), Spliterator.IMMUTABLE)
+                       : new StringUTF16.CharsSpliterator(getBytesAfterToStringBehavior(), Spliterator.IMMUTABLE),
             false);
     }
 
@@ -4418,8 +4418,8 @@ public final class String
     @Override
     public IntStream codePoints() {
         return StreamSupport.intStream(
-            isLatin1() ? new StringLatin1.CharsSpliterator(getBytesAfterToStringLogic(), Spliterator.IMMUTABLE)
-                       : new StringUTF16.CodePointsSpliterator(getBytesAfterToStringLogic(), Spliterator.IMMUTABLE),
+            isLatin1() ? new StringLatin1.CharsSpliterator(getBytesAfterToStringBehavior(), Spliterator.IMMUTABLE)
+                       : new StringUTF16.CodePointsSpliterator(getBytesAfterToStringBehavior(), Spliterator.IMMUTABLE),
             false);
     }
 
@@ -4431,8 +4431,8 @@ public final class String
      *          the character sequence represented by this string.
      */
     public char[] toCharArray() {
-        return isLatin1() ? StringLatin1.toChars(getBytesAfterToStringLogic())
-                          : StringUTF16.toChars(getBytesAfterToStringLogic());
+        return isLatin1() ? StringLatin1.toChars(getBytesAfterToStringBehavior())
+                          : StringUTF16.toChars(getBytesAfterToStringBehavior());
     }
 
     /**
@@ -4535,11 +4535,11 @@ public final class String
      *
      */
     public String formatted(Object... args) {
-        String temp = new Formatter().format(getStringAfterToStringLogic(), args).toString();
+        String temp = new Formatter().format(getStringAfterToStringBehavior(), args).toString();
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.REPLACE))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -4757,10 +4757,10 @@ public final class String
             throw new IllegalArgumentException("count is negative: " + count);
         }
         if (count == 1) {
-            return getStringAfterToStringLogic();
+            return getStringAfterToStringBehavior();
         }
-        byte[] valueAfterToStringLogic = getBytesAfterToStringLogic();
-        final int len = valueAfterToStringLogic.length;
+        byte[] valueAfterToStringBehavior = getBytesAfterToStringBehavior();
+        final int len = valueAfterToStringBehavior.length;
         if (len == 0 || count == 0) {
             return "";
         }
@@ -4769,12 +4769,12 @@ public final class String
         }
         if (len == 1) {
             final byte[] single = new byte[count];
-            Arrays.fill(single, valueAfterToStringLogic[0]);
+            Arrays.fill(single, valueAfterToStringBehavior[0]);
             String temp = new String(single, coder);
 
-            if(this.logic != null)
-                if(this.logic.inheritToChild(IStringLogic.StringTransformType.ADD))
-                    temp.logic = this.logic;
+            if(this.behavior != null)
+                if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                    temp.behavior = this.behavior;
 
             if(this.historyNode != null)
                 temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -4783,7 +4783,7 @@ public final class String
         }
         final int limit = len * count;
         final byte[] multiple = new byte[limit];
-        System.arraycopy(valueAfterToStringLogic, 0, multiple, 0, len);
+        System.arraycopy(valueAfterToStringBehavior, 0, multiple, 0, len);
         int copied = len;
         for (; copied < limit - copied; copied <<= 1) {
             System.arraycopy(multiple, 0, multiple, copied, copied);
@@ -4791,9 +4791,9 @@ public final class String
         System.arraycopy(multiple, 0, multiple, copied, limit - copied);
         String temp = new String(multiple, coder);
 
-        if(this.logic != null)
-            if(this.logic.inheritToChild(IStringLogic.StringTransformType.ADD))
-                temp.logic = this.logic;
+        if(this.behavior != null)
+            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
@@ -4814,11 +4814,11 @@ public final class String
      * @param coder     the coder of dst[]
      */
     void getBytes(byte[] dst, int dstBegin, byte coder) {
-        byte[] valueAfterToStringLogic = getBytesAfterToStringLogic();
+        byte[] valueAfterToStringBehavior = getBytesAfterToStringBehavior();
         if (coder() == coder) {
-            System.arraycopy(valueAfterToStringLogic, 0, dst, dstBegin << coder, valueAfterToStringLogic.length);
+            System.arraycopy(valueAfterToStringBehavior, 0, dst, dstBegin << coder, valueAfterToStringBehavior.length);
         } else {    // this.coder == LATIN && coder == UTF16
-            StringLatin1.inflate(valueAfterToStringLogic, 0, dst, dstBegin, valueAfterToStringLogic.length);
+            StringLatin1.inflate(valueAfterToStringBehavior, 0, dst, dstBegin, valueAfterToStringBehavior.length);
         }
     }
 
@@ -4852,7 +4852,7 @@ public final class String
      * characters in their byte sequences defined by the {@code StringUTF16}.
      */
     String(char[] value, int off, int len, Void sig) {
-        this.logic = checkForStringLogic();
+        this.behavior = checkForStringBehavior();
         if (len == 0) {
             this.value = "".value;
             this.coder = "".coder;
@@ -4907,7 +4907,7 @@ public final class String
     }
 
     byte[] value() {
-        return getBytesAfterToStringLogic();
+        return getBytesAfterToStringBehavior();
     }
 
     boolean isLatin1() {
@@ -5002,7 +5002,7 @@ public final class String
      */
     @Override
     public Optional<String> describeConstable() {
-        return Optional.of(getStringAfterToStringLogic());
+        return Optional.of(getStringAfterToStringBehavior());
     }
 
     /**
@@ -5015,7 +5015,7 @@ public final class String
      */
     @Override
     public String resolveConstantDesc(MethodHandles.Lookup lookup) {
-        return getStringAfterToStringLogic();
+        return getStringAfterToStringBehavior();
     }
 	
 	// ==============================================================================
@@ -5024,44 +5024,44 @@ public final class String
 	// ==============================================================================
 	// ==============================================================================
 
-    /** Stores the optional logic of this String */
-    private IStringLogic logic;
+    /** Stores the optional behavior of this String */
+    private IStringBehavior behavior;
 
-    /** If set to true, all logics are ignored */
-    private boolean ignoreLogics = false;
+    /** If set to true, all behaviors are ignored */
+    private boolean ignoreBehaviors = false;
 
     /** Stores the optional history node of the String */
     private SHNode<String> historyNode;
 
     /**
-     * Add a logic to the String. This will also set ignoreLogics to false.
+     * Add a behavior to the String. This will also set ignoreBehaviors to false.
      *
-     * @param logic the logic to be added to the String
+     * @param behavior the behavior to be added to the String
      */
-    public void setLogic(IStringLogic logic) {
-        if(logic == null) return;
-        ignoreLogics = false;
-        logic.applyOnCreation(this.value, this.coder);
-        this.logic = logic;
-        if(logic.recordHistory() && historyNode == null)
+    public void setBehavior(IStringBehavior behavior) {
+        if(behavior == null) return;
+        ignoreBehaviors = false;
+        behavior.applyOnCreation(this.value, this.coder);
+        this.behavior = behavior;
+        if(behavior.recordHistory() && historyNode == null)
             historyNode = new SHNode<String>(this);
     }
 
     /**
-     * Returns the logic
-     * @return the logic
+     * Returns the behavior
+     * @return the behavior
      */
-    public IStringLogic getLogic() {
-        return logic;
+    public IStringBehavior getBehavior() {
+        return behavior;
     }
 
     /**
-     * Should logic be ignored on this string
-     * @param ignore the logic
+     * Should behavior be ignored on this string
+     * @param ignore the behavior
      * @return this String
      */
-    protected String ignoreLogics(boolean ignore) {
-        ignoreLogics = ignore;
+    protected String ignoreBehaviors(boolean ignore) {
+        ignoreBehaviors = ignore;
         return this;
     }
 
@@ -5085,19 +5085,19 @@ public final class String
     }
 
     /**
-     * Checks if the String has a logic
-     * @return boolean has a logic
+     * Checks if the String has a behavior
+     * @return boolean has a behavior
      */
-    public boolean hasLogic() {
-        return this.logic != null;
+    public boolean hasBehavior() {
+        return this.behavior != null;
     }
 
     /**
-     * Current logic description
-     * @return the description of current logic
+     * Current behavior description
+     * @return the description of current behavior
      */
-    public String getLogicDescription() {
-        return (this.logic == null) ? "null" : logic.getDescription();
+    public String getBehaviorDescription() {
+        return (this.behavior == null) ? "null" : behavior.getDescription();
     }
 
     /**
@@ -5109,59 +5109,59 @@ public final class String
     }
 
     /**
-     * Fetch logic and then apply the initialization part
+     * Fetch behavior and then apply the initialization part
      *
      * @return true if execution of method should continue, false if the execution of this method should stop now
      */
-    private String applyInitializationLogic(byte[] value, byte coder) {
-        if(ignoreLogics) return null;
+    private String applyInitializationBehavior(byte[] value, byte coder) {
+        if(ignoreBehaviors) return null;
 
-        ignoreLogics = true;
+        ignoreBehaviors = true;
         try {
-            if(logic == null) {
-                this.logic = checkForStringLogic();
+            if(behavior == null) {
+                this.behavior = checkForStringBehavior();
             }
-            if(logic != null) {
-                return logic.applyOnCreation(value, coder);
+            if(behavior != null) {
+                return behavior.applyOnCreation(value, coder);
             }
         } finally {
-            ignoreLogics = false;
+            ignoreBehaviors = false;
         }
 
         return null;
     }
 
     /**
-     * Checks for a logic for this string if there is no logic yet
+     * Checks for a behavior for this string if there is no behavior yet
      *
-     * @return the current StringLogic or null (if no exists)
+     * @return the current StringBehavior or null (if no exists)
      */
-    private IStringLogic checkForStringLogic() {
-        if(logic != null) return logic;
-        if(StringLogicController.isEmpty()) return null;
+    private IStringBehavior checkForStringBehavior() {
+        if(behavior != null) return behavior;
+        if(StringBehaviorController.isEmpty()) return null;
 
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        return StringLogicController.getLogicFromStackTrace(stackTraceElements);
+        return StringBehaviorController.getBehaviorFromStackTrace(stackTraceElements);
     }
 
     /**
-     * Checks if the String is subject to a logic and returns the logic output
-     * @return the String returned from the logic otherwise this
+     * Checks if the String is subject to a behavior and returns the behavior output
+     * @return the String returned from the behavior otherwise this
      */
-    private String getStringAfterToStringLogic() {
-        if(!ignoreLogics) {
-            if(logic != null) {
-                ignoreLogics = true;
+    private String getStringAfterToStringBehavior() {
+        if(!ignoreBehaviors) {
+            if(behavior != null) {
+                ignoreBehaviors = true;
                 try {
                     // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
-                    checkForStringLogic();
-                    String logicReturn = logic.applyOnRead(this);
-                    if(logicReturn != null){
-                        return logicReturn.ignoreLogics(true);
+                    checkForStringBehavior();
+                    String behaviorReturn = behavior.applyOnRead(this);
+                    if(behaviorReturn != null){
+                        return behaviorReturn.ignoreBehaviors(true);
                     }
                 // Need to throw this one since it doesn't require a throw statement for method declaration
                 } finally {
-                    ignoreLogics = false;
+                    ignoreBehaviors = false;
                 }
             }
         }
@@ -5169,23 +5169,23 @@ public final class String
     }
 
     /**
-     * Checks if the String is subject to a logic and returns the logic output as byte[]
-     * @return the String as byte[] returned from the logic otherwise value
+     * Checks if the String is subject to a behavior and returns the behavior output as byte[]
+     * @return the String as byte[] returned from the behavior otherwise value
      */
-    private byte[] getBytesAfterToStringLogic() {
-        if(!ignoreLogics) {
-            if(logic != null) {
-                ignoreLogics = true;
+    private byte[] getBytesAfterToStringBehavior() {
+        if(!ignoreBehaviors) {
+            if(behavior != null) {
+                ignoreBehaviors = true;
                 try {
                     // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
-                    //checkForStringLogic();
-                    String logicReturn = logic.applyOnRead(this);
-                    if(logicReturn != null){
-                        return logicReturn.value;
+                    //checkForStringBehavior();
+                    String behaviorReturn = behavior.applyOnRead(this);
+                    if(behaviorReturn != null){
+                        return behaviorReturn.value;
                     }
                 // Need to throw this one since it doesn't require a throw statement for method declaration
                 } finally {
-                    ignoreLogics = false;
+                    ignoreBehaviors = false;
                 }
             }
         }

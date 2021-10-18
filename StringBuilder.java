@@ -448,8 +448,8 @@ public final class StringBuilder
         // Create a copy, don't share the array
         String ret = isLatin1() ? StringLatin1.newString(value, 0, count)
                           : StringUTF16.newString(value, 0, count);
-        if(!logics.isEmpty())
-            ret.setLogic(getLogicFromList());
+        if(!behaviors.isEmpty())
+            ret.setBehavior(getBehaviorFromList());
         if(historyRequested)
             ret.setHistoryNode(new SHNode<String>(ret,parents));
         return ret;
