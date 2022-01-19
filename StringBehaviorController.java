@@ -393,9 +393,6 @@ public final class StringBehaviorController {
 		// if(className.equals("java.lang.StringBehaviorController".ignoreBehaviors(true))) return true;
 		return false;
 	}
-
-	/** Pattern to find all wildcard characters */
-	private static Pattern wildcardRegex = null;
 	
 	/**
 	 * Tries to match a string to a string with wildcards
@@ -404,9 +401,8 @@ public final class StringBehaviorController {
 	 * @return if first string matches the second (with wildcards)
 	 */
 	private static boolean match(String methodDefinition, String matcherString) {
-		if(wildcardRegex == null) wildcardRegex = Pattern.compile("[^*]+|(\\*)".ignoreBehaviors(true));
-
-		Matcher m = wildcardRegex.matcher(matcherString);
+		
+		Matcher m = Pattern.compile("[^*]+|(\\*)".ignoreBehaviors(true)).matcher(matcherString);
 		StringBuffer b = new StringBuffer();
 		while (m.find()) {
 			if(m.group(1) != null) m.appendReplacement(b, ".*".ignoreBehaviors(true));

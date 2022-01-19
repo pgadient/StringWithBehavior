@@ -265,7 +265,7 @@ public final class String
     @IntrinsicCandidate
     public String(String original) {
         if(original.behavior != null) 
-            if(original.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+            if(original.behavior.attachToChild(IStringBehavior.StringTransformType.COPY))
                 this.behavior = original.behavior;
         
         if(original.historyNode != null) {
@@ -299,7 +299,7 @@ public final class String
      */
     public String(String original, IStringBehavior behavior) {
         if(original.behavior != null)
-            if(original.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+            if(original.behavior.attachToChild(IStringBehavior.StringTransformType.COPY))
                 this.behavior = original.behavior;
         if(this.behavior == null)
             this.behavior = behavior;
@@ -2946,14 +2946,14 @@ public final class String
                           : StringUTF16.newString(getBytesAfterToStringBehavior(), beginIndex, subLen);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null) {
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
         }
 		
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -3016,7 +3016,7 @@ public final class String
         String temp = StringConcatHelper.simpleConcat(getStringAfterToStringBehavior(), str);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null || str.historyNode != null) {
@@ -3026,7 +3026,7 @@ public final class String
             // Create History node for new String
             temp.historyNode = new SHNode<String>(temp, this.historyNode, str.historyNode);
         }
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -3065,13 +3065,13 @@ public final class String
 
             if (ret != null) {
                 if(this.behavior != null)
-                    if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                    if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                         ret.behavior = this.behavior;
 
                 if(this.historyNode != null)
                     ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-                return ret;
+                return new String(ret);
             }
         }
         return getStringAfterToStringBehavior();
@@ -3163,13 +3163,13 @@ public final class String
         String temp =  Pattern.compile(regex).matcher(getStringAfterToStringBehavior()).replaceFirst(replacement);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -3216,13 +3216,13 @@ public final class String
         String temp = Pattern.compile(regex).matcher(getStringAfterToStringBehavior()).replaceAll(replacement);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -3262,13 +3262,13 @@ public final class String
 
             if (ret != null) {
                 if(this.behavior != null)
-                    if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                    if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                         ret.behavior = this.behavior;
 
                 if(this.historyNode != null)
                     ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-                return ret;
+                return new String(ret);
             }
             return getStringAfterToStringBehavior();
 
@@ -3289,13 +3289,13 @@ public final class String
             String temp = sb.toString();
 
             if(this.behavior != null)
-                if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+                if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                     temp.behavior = this.behavior;
 
             if(this.historyNode != null)
                 temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-            return temp;
+            return new String(temp);
         }
     }
 
@@ -3456,7 +3456,7 @@ public final class String
             temps = Pattern.compile(regex).split(getStringAfterToStringBehavior(), limit);
 		
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.SPLIT))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.SPLIT))
                 for(int i = 0; i < temps.length; i++)
                     temps[i].behavior = this.behavior;
 
@@ -3653,13 +3653,13 @@ public final class String
                           : StringUTF16.toLowerCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -3743,13 +3743,13 @@ public final class String
                           : StringUTF16.toUpperCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -3813,13 +3813,13 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return ret;
+        return new String(ret);
     }
 
     /**
@@ -3854,13 +3854,13 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return ret;
+        return new String(ret);
     }
 
     /**
@@ -3893,13 +3893,13 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return ret;
+        return new String(ret);
     }
 
     /**
@@ -3932,13 +3932,13 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return ret;
+        return new String(ret);
     }
 
     /**
@@ -3992,7 +3992,7 @@ public final class String
         Stream<String> temps = isLatin1() ? StringLatin1.lines(getBytesAfterToStringBehavior()) : StringUTF16.lines(getBytesAfterToStringBehavior());
         
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.SPLIT))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.SPLIT))
                 temps.forEach(s -> { s.behavior = this.behavior; });
 
         if(this.historyNode != null)
@@ -4346,13 +4346,13 @@ public final class String
         String temp = new String(chars, 0, to);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -4538,13 +4538,13 @@ public final class String
         String temp = new Formatter().format(getStringAfterToStringBehavior(), args).toString();
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     /**
@@ -4773,13 +4773,13 @@ public final class String
             String temp = new String(single, coder);
 
             if(this.behavior != null)
-                if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+                if(this.behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
                     temp.behavior = this.behavior;
 
             if(this.historyNode != null)
                 temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-            return temp;
+            return new String(temp);
         }
         final int limit = len * count;
         final byte[] multiple = new byte[limit];
@@ -4792,13 +4792,13 @@ public final class String
         String temp = new String(multiple, coder);
 
         if(this.behavior != null)
-            if(this.behavior.inheritToChild(IStringBehavior.StringTransformType.COPY))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return temp;
+        return new String(temp);
     }
 
     ////////////////////////////////////////////////////////////////
@@ -5041,8 +5041,10 @@ public final class String
     public void setBehavior(IStringBehavior behavior) {
         if(behavior == null) return;
         ignoreBehaviors = false;
-        behavior.applyOnCreation(this.value, this.coder);
+		
+		behavior.applyOnCreation(this.value, this.coder);
         this.behavior = behavior;
+		
         if(behavior.recordHistory() && historyNode == null)
             historyNode = new SHNode<String>(this);
     }
@@ -5114,13 +5116,16 @@ public final class String
      * @return true if execution of method should continue, false if the execution of this method should stop now
      */
     private String applyInitializationBehavior(byte[] value, byte coder) {
-        if(ignoreBehaviors) return null;
+        if(ignoreBehaviors || ignoreBehaviorsGlobally) return null;
 
         ignoreBehaviors = true;
         try {
             if(behavior == null) {
                 this.behavior = checkForStringBehavior();
             }
+			if(behavior != null && behavior.recordHistory() && historyNode == null) {
+				historyNode = new SHNode<String>(this);
+			}
             if(behavior != null) {
                 return behavior.applyOnCreation(value, coder);
             }
@@ -5143,15 +5148,18 @@ public final class String
         StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         return StringBehaviorController.getBehaviorFromStackTrace(stackTraceElements);
     }
-
+	
+	private static boolean ignoreBehaviorsGlobally = false;
+	
     /**
      * Checks if the String is subject to a behavior and returns the behavior output
      * @return the String returned from the behavior otherwise this
      */
     private String getStringAfterToStringBehavior() {
-        if(!ignoreBehaviors) {
+        if(!ignoreBehaviors && !ignoreBehaviorsGlobally) {
             if(behavior != null) {
                 ignoreBehaviors = true;
+				ignoreBehaviorsGlobally = true;
                 try {
                     // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
                     checkForStringBehavior();
@@ -5162,6 +5170,7 @@ public final class String
                 // Need to throw this one since it doesn't require a throw statement for method declaration
                 } finally {
                     ignoreBehaviors = false;
+					ignoreBehaviorsGlobally = false;
                 }
             }
         }
@@ -5173,9 +5182,10 @@ public final class String
      * @return the String as byte[] returned from the behavior otherwise value
      */
     private byte[] getBytesAfterToStringBehavior() {
-        if(!ignoreBehaviors) {
+        if(!ignoreBehaviors && !ignoreBehaviorsGlobally) {
             if(behavior != null) {
                 ignoreBehaviors = true;
+				ignoreBehaviorsGlobally = true;
                 try {
                     // -- Somehow cannot use it here... Build will fail (because of getStackTrace())
                     //checkForStringBehavior();
@@ -5186,6 +5196,7 @@ public final class String
                 // Need to throw this one since it doesn't require a throw statement for method declaration
                 } finally {
                     ignoreBehaviors = false;
+					ignoreBehaviorsGlobally = false;
                 }
             }
         }

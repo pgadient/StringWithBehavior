@@ -452,7 +452,7 @@ public final class StringBuilder
             ret.setBehavior(getBehaviorFromList());
         if(historyRequested)
             ret.setHistoryNode(new SHNode<String>(ret,parents));
-        return ret;
+        return new String(ret);
     }
 
     /**

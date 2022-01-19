@@ -26,12 +26,12 @@ public interface IStringBehavior {
     default public String applyOnRead(String s) { return s; };
 
     /**
-     * Whether the string is inherited to its children
+     * Whether the string is attached to its children
      * 
      * @param stt the string transformation to be checked
-     * @return if the child of this transformation should inherit the behavior
+     * @return if the child of this transformation should get the behavior attached
      */
-    public boolean inheritToChild(StringTransformType stt);
+    public boolean attachToChild(StringTransformType stt);
 
     /**
      * Whether the string should keep track of its children
@@ -46,16 +46,22 @@ public interface IStringBehavior {
     public String getDescription();
 
     /**
-     * Different types of transformations a string can go through to create a new one
+     * Different types of transformations a string can go thru to create a new one
      */
     public enum StringTransformType { 
-        /** An entire String was used */ 
-        COPY, 
+        /** Nothing happened */
+        NONE, 
+        /** The string was simply copied */
+        COPY,
+        /** Something was added to the string */ 
+        ADD, 
         /** Something was removed from the string */
         DELETE,
         /** Anything changed in the string */ 
         REPLACE,
         /** Split the string */
-        SPLIT
+        SPLIT,
+        /** Exported to another format (e.g. byte[], char[],...) */
+        EXPORT
     }
 }
