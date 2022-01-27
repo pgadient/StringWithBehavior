@@ -85,4 +85,12 @@ public class SHNode<T> {
     public List<SHNode<T>> getParents() {
         return new ArrayList<SHNode<T>>(parents);
     }
+	
+	/**
+     * Get the node element
+     * @return get the element that represents this node
+     */
+	public T getValue() {
+		return element;
+	}
 }
