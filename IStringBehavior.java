@@ -58,10 +58,6 @@ public interface IStringBehavior {
         /** Something was removed from the string */
         DELETE,
         /** Anything changed in the string */ 
-        REPLACE,
-        /** Split the string */
-        SPLIT,
-        /** Exported to another format (e.g. byte[], char[],...) */
-        EXPORT
+        REPLACE
     }
 }

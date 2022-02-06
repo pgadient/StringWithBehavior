@@ -3456,7 +3456,7 @@ public final class String
             temps = Pattern.compile(regex).split(getStringAfterToStringBehavior(), limit);
 		
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.SPLIT))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 for(int i = 0; i < temps.length; i++)
                     temps[i].behavior = this.behavior;
 
@@ -3992,7 +3992,7 @@ public final class String
         Stream<String> temps = isLatin1() ? StringLatin1.lines(getBytesAfterToStringBehavior()) : StringUTF16.lines(getBytesAfterToStringBehavior());
         
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.SPLIT))
+            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
                 temps.forEach(s -> { s.behavior = this.behavior; });
 
         if(this.historyNode != null)
