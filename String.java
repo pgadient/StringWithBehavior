@@ -264,11 +264,15 @@ public final class String
      */
     @IntrinsicCandidate
     public String(String original) {
-        if(original.behavior != null) 
+        this(original, true);
+    }
+	
+	private String(String original, boolean recordHistory) {
+		if(original.behavior != null) 
             if(original.behavior.attachToChild(IStringBehavior.StringTransformType.COPY))
                 this.behavior = original.behavior;
         
-        if(original.historyNode != null) {
+        if(recordHistory && original.historyNode != null) {
             this.historyNode = new SHNode<String>(this, original.historyNode);
         }
         
@@ -282,7 +286,7 @@ public final class String
             this.coder = str.coder;
             this.hash = str.hash;
         }
-    }
+	}
 
     /**
      * Initializes a newly created {@code String} object so that it represents
@@ -2953,7 +2957,7 @@ public final class String
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
         }
 		
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -3026,7 +3030,7 @@ public final class String
             // Create History node for new String
             temp.historyNode = new SHNode<String>(temp, this.historyNode, str.historyNode);
         }
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -3071,7 +3075,7 @@ public final class String
                 if(this.historyNode != null)
                     ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-                return new String(ret);
+                return new String(ret, false);
             }
         }
         return getStringAfterToStringBehavior();
@@ -3169,7 +3173,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -3222,7 +3226,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -3268,7 +3272,7 @@ public final class String
                 if(this.historyNode != null)
                     ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-                return new String(ret);
+                return new String(ret, false);
             }
             return getStringAfterToStringBehavior();
 
@@ -3295,7 +3299,7 @@ public final class String
             if(this.historyNode != null)
                 temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-            return new String(temp);
+            return new String(temp, false);
         }
     }
 
@@ -3659,7 +3663,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -3749,7 +3753,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -3819,7 +3823,7 @@ public final class String
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return new String(ret);
+        return new String(ret, false);
     }
 
     /**
@@ -3860,7 +3864,7 @@ public final class String
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return new String(ret);
+        return new String(ret, false);
     }
 
     /**
@@ -3899,7 +3903,7 @@ public final class String
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return new String(ret);
+        return new String(ret, false);
     }
 
     /**
@@ -3938,7 +3942,7 @@ public final class String
         if(this.historyNode != null)
             ret.historyNode = new SHNode<String>(ret, this.historyNode);
 
-        return new String(ret);
+        return new String(ret, false);
     }
 
     /**
@@ -4352,7 +4356,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -4544,7 +4548,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     /**
@@ -4779,7 +4783,7 @@ public final class String
             if(this.historyNode != null)
                 temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-            return new String(temp);
+            return new String(temp, false);
         }
         final int limit = len * count;
         final byte[] multiple = new byte[limit];
@@ -4798,7 +4802,7 @@ public final class String
         if(this.historyNode != null)
             temp.historyNode = new SHNode<String>(temp, this.historyNode);
 
-        return new String(temp);
+        return new String(temp, false);
     }
 
     ////////////////////////////////////////////////////////////////
