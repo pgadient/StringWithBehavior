@@ -451,7 +451,7 @@ public final class StringBuilder
         if(!behaviors.isEmpty())
             ret.setBehavior(getBehaviorFromList());
         if(historyRequested)
-            ret.setHistoryNode(new SHNode<String>(ret,parents));
+            return new String(ret, parents);
         return new String(ret);
     }
 

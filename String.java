@@ -264,16 +264,21 @@ public final class String
      */
     @IntrinsicCandidate
     public String(String original) {
-        this(original, true);
+        this(original, original.historyNode);
     }
 	
-	private String(String original, boolean recordHistory) {
+    /**
+     * Initializes String with predefined History Node parents
+     * @param original A {@code String}
+     * @param parentHistoryNode parent history node
+     */
+	public String(String original, SHNode<String> parentHistoryNode) {
 		if(original.behavior != null) 
             if(original.behavior.transferToDerivative(IStringBehavior.StringTransformType.COPY))
                 this.behavior = original.behavior;
-        
-        if(recordHistory && original.historyNode != null) {
-            this.historyNode = new SHNode<String>(this, original.historyNode);
+
+        if(parentHistoryNode != null) {
+            this.historyNode = new SHNode<String>(this, parentHistoryNode);
         }
         
         String str = applyInitializationBehavior(original.value, original.coder);
@@ -285,6 +290,32 @@ public final class String
             this.value = str.value;
             this.coder = str.coder;
             this.hash = str.hash;
+        }
+	}
+	
+    /**
+     * Initializes String with predefined History Node parents
+     * @param original A {@code String}
+     * @param parentHistoryNodes parent history nodes
+     */
+	public String(String original, List<SHNode<String>> parentHistoryNodes) {
+		if(original.behavior != null) 
+            if(original.behavior.transferToDerivative(IStringBehavior.StringTransformType.COPY))
+                this.behavior = original.behavior;
+        
+        String str = applyInitializationBehavior(original.value, original.coder);
+        if(str == null) {
+            this.value = original.value;
+            this.coder = original.coder;
+            this.hash = original.hash;
+        } else {
+            this.value = str.value;
+            this.coder = str.coder;
+            this.hash = str.hash;
+        }
+        
+        if(!parentHistoryNodes.isEmpty()) {
+            this.historyNode = new SHNode<String>(this, parentHistoryNodes);
         }
 	}
 
@@ -2952,12 +2983,8 @@ public final class String
         if(this.behavior != null)
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 temp.behavior = this.behavior;
-
-        if(this.historyNode != null) {
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-        }
 		
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -3027,10 +3054,12 @@ public final class String
             // Create History nodes for parents if not existent
             if(this.historyNode == null) this.historyNode = new SHNode<String>(this);
             if(str.historyNode == null) str.historyNode = new SHNode<String>(str);
-            // Create History node for new String
-            temp.historyNode = new SHNode<String>(temp, this.historyNode, str.historyNode);
+            List<SHNode<String>> nodes = new ArrayList<SHNode<String>>();
+            nodes.add(this.historyNode);
+            nodes.add(str.historyNode);
+            return new String(temp, nodes);
         }
-        return new String(temp, false);
+        return new String(temp);
     }
 
     /**
@@ -3072,10 +3101,7 @@ public final class String
                     if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                         ret.behavior = this.behavior;
 
-                if(this.historyNode != null)
-                    ret.historyNode = new SHNode<String>(ret, this.historyNode);
-
-                return new String(ret, false);
+                return new String(ret, this.historyNode);
             }
         }
         return getStringAfterToStringBehavior();
@@ -3170,10 +3196,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -3223,10 +3246,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -3269,10 +3289,7 @@ public final class String
                     if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                         ret.behavior = this.behavior;
 
-                if(this.historyNode != null)
-                    ret.historyNode = new SHNode<String>(ret, this.historyNode);
-
-                return new String(ret, false);
+                return new String(ret, this.historyNode);
             }
             return getStringAfterToStringBehavior();
 
@@ -3296,10 +3313,7 @@ public final class String
                 if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                     temp.behavior = this.behavior;
 
-            if(this.historyNode != null)
-                temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-            return new String(temp, false);
+            return new String(temp, this.historyNode);
         }
     }
 
@@ -3459,14 +3473,14 @@ public final class String
         if(temps == null)
             temps = Pattern.compile(regex).split(getStringAfterToStringBehavior(), limit);
 		
-        if(this.behavior != null)
-            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
-                for(int i = 0; i < temps.length; i++)
-                    temps[i].behavior = this.behavior;
+        // if(this.behavior != null)
+        //     if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
+        //         for(int i = 0; i < temps.length; i++)
+        //             temps[i].behavior = this.behavior;
 
-        if(this.historyNode != null)
-            for(int i = 0; i < temps.length; i++)
-                temps[i].historyNode = new SHNode<String>(temps[i], this.historyNode);
+        // if(this.historyNode != null)
+        //     for(int i = 0; i < temps.length; i++)
+        //         temps[i].historyNode = new SHNode<String>(temps[i], this.historyNode);
 
         return temps;
     }
@@ -3660,10 +3674,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -3750,10 +3761,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -3820,10 +3828,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            ret.historyNode = new SHNode<String>(ret, this.historyNode);
-
-        return new String(ret, false);
+        return new String(ret, this.historyNode);
     }
 
     /**
@@ -3861,10 +3866,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            ret.historyNode = new SHNode<String>(ret, this.historyNode);
-
-        return new String(ret, false);
+        return new String(ret, this.historyNode);
     }
 
     /**
@@ -3900,10 +3902,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            ret.historyNode = new SHNode<String>(ret, this.historyNode);
-
-        return new String(ret, false);
+        return new String(ret, this.historyNode);
     }
 
     /**
@@ -3939,10 +3938,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            ret.historyNode = new SHNode<String>(ret, this.historyNode);
-
-        return new String(ret, false);
+        return new String(ret, this.historyNode);
     }
 
     /**
@@ -4353,10 +4349,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -4545,10 +4538,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     /**
@@ -4780,10 +4770,7 @@ public final class String
                 if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.ADD))
                     temp.behavior = this.behavior;
 
-            if(this.historyNode != null)
-                temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-            return new String(temp, false);
+            return new String(temp, this.historyNode);
         }
         final int limit = len * count;
         final byte[] multiple = new byte[limit];
@@ -4799,10 +4786,7 @@ public final class String
             if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.ADD))
                 temp.behavior = this.behavior;
 
-        if(this.historyNode != null)
-            temp.historyNode = new SHNode<String>(temp, this.historyNode);
-
-        return new String(temp, false);
+        return new String(temp, this.historyNode);
     }
 
     ////////////////////////////////////////////////////////////////

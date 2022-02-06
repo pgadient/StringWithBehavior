@@ -34,21 +34,7 @@ public class SHNode<T> {
         parent.addChild(this);
     }
 
-    /**
-     * Constructor taking two parents
-     * @param element element of the node
-     * @param parent1 a parent node
-     * @param parent2 a parent node
-     */
-    public SHNode(T element, SHNode<T> parent1, SHNode<T> parent2){
-        this.element = element;
-        parents = new ArrayList<SHNode<T>>();
-        parent1.addChild(this);
-        parent2.addChild(this);
-        children = new ArrayList<SHNode<T>>();
-    }
-
-    /**
+     /**
      * Constructor taking parent List
      * @param element element of the node
      * @param parents list of parents
@@ -56,9 +42,11 @@ public class SHNode<T> {
     public SHNode(T element, List<SHNode<T>> parents){
         this.element = element;
         this.parents = new ArrayList<SHNode<T>>();
-        for(SHNode<T> parent : parents)
-            parent.addChild(this);
-        children = new ArrayList<SHNode<T>>();
+        for(SHNode<T> parent: parents) {
+            if(parent != null)
+                parent.addChild(this);
+        }            
+        this.children = new ArrayList<SHNode<T>>();
     }
 
     /**
