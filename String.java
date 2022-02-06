@@ -269,7 +269,7 @@ public final class String
 	
 	private String(String original, boolean recordHistory) {
 		if(original.behavior != null) 
-            if(original.behavior.attachToChild(IStringBehavior.StringTransformType.COPY))
+            if(original.behavior.transferToDerivative(IStringBehavior.StringTransformType.COPY))
                 this.behavior = original.behavior;
         
         if(recordHistory && original.historyNode != null) {
@@ -303,7 +303,7 @@ public final class String
      */
     public String(String original, IStringBehavior behavior) {
         if(original.behavior != null)
-            if(original.behavior.attachToChild(IStringBehavior.StringTransformType.COPY))
+            if(original.behavior.transferToDerivative(IStringBehavior.StringTransformType.COPY))
                 this.behavior = original.behavior;
         if(this.behavior == null)
             this.behavior = behavior;
@@ -2950,7 +2950,7 @@ public final class String
                           : StringUTF16.newString(getBytesAfterToStringBehavior(), beginIndex, subLen);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null) {
@@ -3020,7 +3020,7 @@ public final class String
         String temp = StringConcatHelper.simpleConcat(getStringAfterToStringBehavior(), str);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.ADD))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null || str.historyNode != null) {
@@ -3069,7 +3069,7 @@ public final class String
 
             if (ret != null) {
                 if(this.behavior != null)
-                    if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+                    if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                         ret.behavior = this.behavior;
 
                 if(this.historyNode != null)
@@ -3167,7 +3167,7 @@ public final class String
         String temp =  Pattern.compile(regex).matcher(getStringAfterToStringBehavior()).replaceFirst(replacement);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3220,7 +3220,7 @@ public final class String
         String temp = Pattern.compile(regex).matcher(getStringAfterToStringBehavior()).replaceAll(replacement);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3266,7 +3266,7 @@ public final class String
 
             if (ret != null) {
                 if(this.behavior != null)
-                    if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+                    if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                         ret.behavior = this.behavior;
 
                 if(this.historyNode != null)
@@ -3293,7 +3293,7 @@ public final class String
             String temp = sb.toString();
 
             if(this.behavior != null)
-                if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+                if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                     temp.behavior = this.behavior;
 
             if(this.historyNode != null)
@@ -3460,7 +3460,7 @@ public final class String
             temps = Pattern.compile(regex).split(getStringAfterToStringBehavior(), limit);
 		
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 for(int i = 0; i < temps.length; i++)
                     temps[i].behavior = this.behavior;
 
@@ -3657,7 +3657,7 @@ public final class String
                           : StringUTF16.toLowerCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3747,7 +3747,7 @@ public final class String
                           : StringUTF16.toUpperCase(getStringAfterToStringBehavior(), getBytesAfterToStringBehavior(), locale);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3817,7 +3817,7 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3858,7 +3858,7 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3897,7 +3897,7 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3936,7 +3936,7 @@ public final class String
         if(ret == null) return getStringAfterToStringBehavior();
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 ret.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -3996,7 +3996,7 @@ public final class String
         Stream<String> temps = isLatin1() ? StringLatin1.lines(getBytesAfterToStringBehavior()) : StringUTF16.lines(getBytesAfterToStringBehavior());
         
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.DELETE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.DELETE))
                 temps.forEach(s -> { s.behavior = this.behavior; });
 
         if(this.historyNode != null)
@@ -4350,7 +4350,7 @@ public final class String
         String temp = new String(chars, 0, to);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -4542,7 +4542,7 @@ public final class String
         String temp = new Formatter().format(getStringAfterToStringBehavior(), args).toString();
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.REPLACE))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.REPLACE))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)
@@ -4777,7 +4777,7 @@ public final class String
             String temp = new String(single, coder);
 
             if(this.behavior != null)
-                if(this.behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
+                if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.ADD))
                     temp.behavior = this.behavior;
 
             if(this.historyNode != null)
@@ -4796,7 +4796,7 @@ public final class String
         String temp = new String(multiple, coder);
 
         if(this.behavior != null)
-            if(this.behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
+            if(this.behavior.transferToDerivative(IStringBehavior.StringTransformType.ADD))
                 temp.behavior = this.behavior;
 
         if(this.historyNode != null)

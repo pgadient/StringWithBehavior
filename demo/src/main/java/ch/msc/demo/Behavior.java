@@ -75,7 +75,7 @@ public class Behavior implements IStringBehavior {
 	}
 
 	@Override
-	public boolean attachToChild(StringTransformType stt) {
+	public boolean transferToDerivative(StringTransformType stt) {
 		return true;
 	}
 

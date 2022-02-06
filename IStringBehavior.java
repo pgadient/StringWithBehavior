@@ -31,7 +31,7 @@ public interface IStringBehavior {
      * @param stt the string transformation to be checked
      * @return if the child of this transformation should get the behavior attached
      */
-    public boolean attachToChild(StringTransformType stt);
+    public boolean transferToDerivative(StringTransformType stt);
 
     /**
      * Whether the string should keep track of its children

@@ -1847,7 +1847,7 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
      */
     protected IStringBehavior getBehaviorFromList() {
         for(IStringBehavior behavior : behaviors)
-            if(behavior.attachToChild(IStringBehavior.StringTransformType.ADD))
+            if(behavior.transferToDerivative(IStringBehavior.StringTransformType.ADD))
                 return behavior;
         return null;
     }
