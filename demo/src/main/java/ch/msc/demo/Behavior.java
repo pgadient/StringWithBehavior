@@ -20,7 +20,6 @@ public class Behavior implements IStringBehavior {
 	private IvParameterSpec iv;
 
 	private String[] unauthorizedPackages = { "java.net", "java.io" };
-	private List<String> ioPackagesList = Arrays.asList(unauthorizedPackages);
 
 	private String[] admins = {
 		"admin1@organization.ch",
@@ -54,7 +53,7 @@ public class Behavior implements IStringBehavior {
 		boolean isLeak = false;
 		StackTraceElement[] contexts = Thread.currentThread().getStackTrace();
 		for(int i = 1; i < contexts.length; i++) {
-			for(String ioPackageName: ioPackagesList) {
+			for(String ioPackageName: unauthorizedPackages) {
 				if(contexts[i].getClassName().startsWith(ioPackageName)) {
 					isLeak = true;
 				}
