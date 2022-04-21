@@ -1,4 +1,4 @@
-# BString: String with behavior
+# BString: String With Behavior
 The BString framework offers a `String` class, which can react depending on the contained value.
 In consequence, the behavior of an application will adjust depending on the contained `String` values and their locations.
 For this purpose, we introduced two additional methods in the OpenJDK Java `String` class implementation, which accept compiled byte code as an input parameter.
